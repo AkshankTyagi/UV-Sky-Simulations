@@ -1,25 +1,29 @@
 [Params_1]
+hipparcos_catalogue = hip_main.dat
 sat_name = Astrosat
 roll = False
 roll_rate_hrs = False
 number of revolutions = 1
 n_frames = False
-t_slice = 200
+t_slice = 300
 width = 0.5
 height = 7
+star_mag_threshold = 8.5
 azm = 40
 ele = 25
 interval_bw_frames = 500
 
 [Params_2]
+hipparcos_catalogue = hip_main.dat
 sat_name = RISAT-2B
 roll = False
 roll_rate_hrs = False
 number of revolutions = 1
 n_frames = False
-t_slice = 50
+t_slice = 100
 width = 9.31
 height = 7
+star_mag_threshold = 8.5
 azm = 60
 ele = 55
 interval_bw_frames = 50
