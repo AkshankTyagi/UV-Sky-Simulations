@@ -1,0 +1,35 @@
+###############################################
+#Parameter file for diffuse_light v2.0
+#Directory for Castelli spectra
+CASTELLI_FILE     	/Users/jayanth/user/data/castelli/ckp00
+#Draine sigma file
+SIGMA_FILE 	/Users/jayanth/user/data/draine/kext_albedo_WD_MW_3.1_60_D03.all
+#Hipparcos stars
+HIPPARCOS_FILE  /Users/jayanth/user/data/hipparcos/hip_main.dat
+#Dust file
+DUST_FILE	/Users/jayanth/user/uv_model/DGL/bin/dust/dust_file.fits.gz
+#Column densities
+COL_DENSITY_FILE /Users/jayanth/user/uv_model/DGL/bin/dust/dust_file_col.fits.gz
+#WCS parameters
+WCS_FILE 	/Users/jayanth/user/uv_model/DGL/params/wcs_file.txt
+#Stars to be excluded from the simulation
+EXCLUDE_FILE  /Users/jayanth/user/uv_model/DGL/bin/stars/exclude_stars.10000
+#Any additional stars
+EXTRA_STAR_FILE  td1_not_listed_in_brightHIP.txt
+#Number of photons in simulation
+NO_OF_PHOTONS  10000000
+#Number of scatterings allowed
+NO_OF_SCATTER  5
+#Wavelength
+WAVELENGTH 1500
+#Albedo
+ALBEDO  0.5
+#Phase function (g)
+PHASE_FUNCTION  0.1
+#Debugging Parameters
+PRINT_DEBUG no
+MIN_GL_DEBUG  0
+MAX_GL_DEBUG  360
+MIN_GB_DEBUG  -90
+MAX_GB_DEBUG  90
+###########################################

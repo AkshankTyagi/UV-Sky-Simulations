@@ -15,6 +15,7 @@ config = ConfigParser()
 
 from star_data import *
 from plot import *
+from star_spectrum import *
 
 def read_parameter_file(filename='init_parameter.txt', param_set = 'Params_1'):
     config.read(filename)
@@ -165,9 +166,9 @@ def main():
     start = np.datetime64(datetime.datetime.now())
     # times, state_vectors, celestial_coordinates  
     time_arr, state_vectors, celestial_coordinates = get_simulation_data(satellite, df, start, t_period, t_slice, roll)
-    # print (celestial_coordinates)
+    print (celestial_coordinates)
     # animate
-    animate(time_arr, state_vectors, celestial_coordinates, r)
+    # animate(time_arr, state_vectors, celestial_coordinates, r)
     return
 
 # main

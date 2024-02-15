@@ -1,5 +1,5 @@
 [Params_1]
-hipparcos_catalogue = hip_main.dat
+hipparcos_catalogue = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\hip_main.dat
 sat_name = Astrosat
 roll = False
 roll_rate_hrs = False
@@ -14,7 +14,7 @@ ele = 25
 interval_bw_frames = 500
 
 [Params_2]
-hipparcos_catalogue = hip_main.dat
+hipparcos_catalogue = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\hip_main.dat
 sat_name = RISAT-2B
 roll = False
 roll_rate_hrs = False

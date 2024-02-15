@@ -76,3 +76,5 @@ def get_frame_boundaries(w, h, x, y):
     
     # return limits 
     return  xmin, ymin, xmax, ymax
+
+df = read_hipparcos_data(fname=r'hip_main.dat', threshold=6.5)
