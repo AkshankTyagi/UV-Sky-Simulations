@@ -1,52 +1,38 @@
 from configparser import ConfigParser
+from view_orbit import get_folder_loc
+folder_loc = get_folder_loc()
 
 config = ConfigParser()
 
 config['Params_1'] = {
-    'Hipparcos_catalogue' : 'hip_main.dat',
+    'hipparcos_catalogue' : f'{folder_loc}hip_main.dat', #path to the Hipparcos file
+    'Castelli_data' : f'{folder_loc}Castelli\ckp00', #path to the ckp00 file of the Castelli Kurucz Atlas
     'sat_name' : 'Astrosat',
     'roll' : False,
     'roll_rate_hrs' : False,
-    # Directional Cosines of Detector from the velocity of Satellite 
+    # TBA Directional Cosines of Detector from the velocity of Satellite 
     'number of Revolutions' : 1,
     # Specify either Number of frames or period in sec after which the next Frame is given
     'N_frames' : False,
-    't_slice' : 300, # Seconds,
+    't_slice' : 200, # Seconds,
 
     # Camera Field of View in Deg default 9.3 X 7
     'width': 0.5, #RA width
     'height': 7, #Dec height
-    'Star_mag_threshold' : 8.5, #threshold for what apaarent magnitude stars we want to look at
+    'star_mag_threshold' : 8, #threshold for what apaarent magnitude stars we want to look at
+    
+    # Spectrum Parameters (UV Band Wavelengths in Angstroms)
+    'limit_min': 100,
+    'limit_max': 3800,
 
     #Animation parameters
     # set view
     'azm': 40,
     'ele': 25,
-    'interval_bw_Frames' : 500 # milliSec
+    'longitudinal_spectral_width' : 0.8, #Declination width of spectral spread to fall on detector in degrees
+    'interval_bw_Frames' : 2000 # milliSec
 }
 
-config['Params_2'] ={
-    'Hipparcos_catalogue' : 'hip_main.dat',
-    'sat_name' : 'RISAT-2B',
-    'roll' : False,
-    'roll_rate_hrs' : False,
-    # Directional Cosines of Detector from the velocity of Satellite 
-    'number of Revolutions' : 1,
-    # Specify either Number of frames or period in sec after which the next Frame is given
-    'N_frames' : False,
-    't_slice' : 100, # Seconds
 
-    # Camera Field of View in Deg
-    'width': 9.31, #RA width
-    'height': 7, #Dec height
-    'Star_mag_threshold' : 8.5,
-
-    #Animation parameters
-    # set view
-    'azm': 60,
-    'ele': 55,
-    'interval_bw_Frames' : 50 # milliSec
-}
-
-with open('init_parameter.txt',"w") as f:
+with open(f'{folder_loc}init_parameter.txt',"w") as f:
     config.write(f)

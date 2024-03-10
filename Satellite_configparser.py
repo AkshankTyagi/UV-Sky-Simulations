@@ -1,4 +1,6 @@
 from configparser import ConfigParser
+from view_orbit import get_folder_loc
+folder_loc = get_folder_loc()
 
 config = ConfigParser()
 
@@ -23,5 +25,5 @@ config['Astrosat'] = {
     'line2' : '2 40930   5.9997  85.2473 0008613 282.4744  77.4420 14.78268977447249'
 }
 
-with open('Satellite_TLE.txt',"w") as f:
+with open(f'{folder_loc}Satellite_TLE.txt',"w") as f:
     config.write(f)

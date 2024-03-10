@@ -40,7 +40,7 @@ static double dsqrarg;
 #define HIP_MAIN_REC_LEN 1000
 
 //Variables
-#define MAX_FILE_LENGTH FLEN_FILENAME
+#define MAX_FILE_LENGTH 100
 #define N_CASTELLI_SPECTRA 1121
 #define N_CASTELLI_MODELS 76
 #define N_CROSS_SEC 10000 /*Maximum number of lines in cross-section file*/
