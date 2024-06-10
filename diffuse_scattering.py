@@ -8,6 +8,7 @@ from star_spectrum import *
 from star_data import *
 from dust_scatter import *
 from read_dust_files import *
+from create_csv_files import calc_weigthed_probab, Get_hipstars
 import csv
 
 # albedo = 0.36
@@ -29,49 +30,53 @@ def read_parameter_file(filename= params_file, param_set = 'Params_1'):
     dust_file = config.get(param_set, 'dust_file')
     dust_col_file = config.get(param_set, 'dust_col_file')
     sigma_file = config.get(param_set, 'sigma_file')
+    min_lim = float(config.get(param_set, 'limit_min'))
+    max_lim = float(config.get(param_set, 'limit_max'))
 
+    return min_lim, max_lim
 
-read_parameter_file()
+wave_min, wave_max = read_parameter_file()
+
 dust_par = read_input_parameters()
 # global dust_file, dust_col_file, sigma_file, hipp_file, castelli_file
 VERSION = "May 2024"
 dust_par.version = VERSION  # Assuming VERSION is a predefined constant
 
-# dust_dist = dust_read(dust_par, dust_file)  # Read dust file
-# print('dust_dist\n',dust_dist[0])
-# col_density = dust_read(dust_par, dust_col_file)  # File containing column densities
-# print('col_density\n',col_density[0])
-# sigma = read_cross_sec(sigma_file, dust_par)
-# print(f"sigma \n{sigma}")  
+dust_dist = dust_read(dust_par, dust_file)  # Read dust file
+print('dust_dist\n',dust_dist[0])
+col_density = dust_read(dust_par, dust_col_file)  # File containing column densities
+print('col_density\n',col_density[0])
+sigma = read_cross_sec(sigma_file, dust_par)
+print(f"sigma \n{sigma}")  
 
-# # Probabilities for scattering
-# angle = np.zeros(NA)
-# fscat = np.zeros(NA)
-# SETUP_ANGLE(angle)
-# SETUP_SCATTER(fscat, dust_par.g)
-# print('angle\n',angle)
-# print('fscat\n',fscat)
+# Probabilities for scattering
+angle = np.zeros(NA)
+fscat = np.zeros(NA)
+SETUP_ANGLE(angle)
+SETUP_SCATTER(fscat, dust_par.g)
+print('angle\n',angle)
+print('fscat\n',fscat)
 
 
-# # Initialize variables
-# x_new = y_new = z_new = theta = phi = xp = yp = zp = dust_index = tau = nphoton = 0
-# delta_x = delta_y = delta_z = 0
+# Initialize variables
+x_new = y_new = z_new = theta = phi = xp = yp = zp = dust_index = tau = nphoton = 0
+delta_x = delta_y = delta_z = 0
 
-# # Set the seed for random number generation
-# time1 = 2**30
-# time2 = int(time.time())
-# init_seed = time2 % time1
-# print(time2, time1, init_seed)
-# # init_seed = np.random.seed(init_seed)
-# # print(init_seed)
+# Set the seed for random number generation
+time1 = 2**30
+time2 = int(time.time())
+init_seed = time2 % time1
+print(time2, time1, init_seed)
+# init_seed = np.random.seed(init_seed)
+# print(init_seed)
 
-# # Initialize random array using numpy
-# ran_array = np.random.rand(nrandom)
-# print(ran_array)
-# ran_ctr = nrandom
-# print(ran_ctr)
-# # The dust and energy arrays are continuously built up
-# dust_arr = np.zeros((3600, 1800))
+# Initialize random array using numpy
+ran_array = np.random.rand(nrandom)
+print(ran_array)
+ran_ctr = nrandom
+print(ran_ctr)
+# The dust and energy arrays are continuously built up
+dust_arr = np.zeros((3600, 1800))
 
 # Open and Read Stellar Files
 
@@ -206,102 +211,19 @@ for star in hipstars:
         star.max_phi = 360. - phibox[2]
 
 
-# Assuming NSTARS, hipstars, and star_list are defined somewhere in your code
+
 print('working3')
-# Define a function to sort stars based on tot_photons
-def sort_stars_by_photons(star_list, hipstars ):
-    print(f"Sorting stars {NSTARS}")
-    for w in range(len(hipstars[0].wavelengths)):
-        for i in range(NSTARS):
-            for j in range(i + 1, NSTARS):
-                # print (star_list[j][w], hipstars[star_list[j][w]].tot_photons[w], hipstars[j].tot_photons[w] )
-                if hipstars[star_list[j][w]].tot_photons[w] > hipstars[star_list[i][w]].tot_photons[w]:
-                    star_list[i][w], star_list[j][w] = star_list[j][w], star_list[i][w]
-
-# Open the file "ordered_list_of_stars.list" for reading or writing
+#sorting and weighting star photons data
 try:
-    ordered_list = open(f'{folder_loc}ordered_list_of_stars_{NSTARS}.list', "r")
-    print("READING STAR LIST FROM FILE")
-    for i in range(NSTARS):
-        line = ordered_list.readline()
-        ltmp = ast.literal_eval(line.strip())
-        star_list[i] = ltmp
-    ordered_list.close()
+    weighted_list = pd.read_csv(f'diffused_data/Weighted_list@3[{wave_min},{wave_max}].csv')
 except FileNotFoundError:
-    # Sort stars if the file is not found
-    sort_stars_by_photons(star_list, hipstars)
-    # Write sorted star list to the file
-    ordered_list = open(f'{folder_loc}ordered_list_of_stars_{NSTARS}.list', "w")
-    for i in range(NSTARS):
-        ordered_list.write(f"{star_list[i]}\n")
-    ordered_list.close()
-# print(star_list[0:2])
+    weighted_list = calc_weigthed_probab()
 
-# Calculate weighted probabilities for selecting stars
-def calc_weigthed_probab():
-    star_wgt = [[0]*len(hipstars[0].wavelengths)]* NSTARS
-    # print(star_wgt)
-    for w in range(len(hipstars[0].wavelengths)):
-        star_wgt[0][w] = hipstars[star_list[0][w]].tot_photons[w]
-        for i in range(1, NSTARS):
-            if hipstars[star_list[i][w]].tot_photons[w] < 0:
-                print(f'{hipstars[star_list[i][w]].hip}--- photons @ {hipstars[star_list[i][w]].wavelengths[w]}:  {hipstars[star_list[0][w]].tot_photons[w]} ')
-            star_wgt[i][w] = star_wgt[i-1][w] + hipstars[star_list[i][w]].tot_photons[w]
-    return star_wgt
 
-star_wgt = calc_weigthed_probab()
-# print(star_wgt[0])
-print('working4')
-def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, starlog, misslog, totlog, distlog, scatlog):
-    # Time related
-    current_time = time()
-    print(f"Checkpoint of {nphoton} photons at {ctime(current_time)}")
 
-    # Add to cumulative grids. Scale by the number of photons from the star over
-    # the number of photons in the simulation. Write them out to FITS files.
+################################################################################################
 
-    write_fits_file(wcs, dust_arr, nphoton, tot_star, inp_par)
-
-    with open("datalogger.txt", "w") as logfile:
-        logfile.write("HIP_NO Dist.  Star_flux Star_phot Miss_phot Dist_sca scat_flux tot_flux\n")
-        for i in range(len(hipstars)):
-            logfile.write(f"{hipstars[i]['HIP_NO']} {hipstars[i]['distance']} {hipstars[i]['tot_photons']} "
-                          f"{starlog[i]} {misslog[i]} {distlog[i]} {scatlog[i]} {totlog[i]}\n")
-
-def write_fits_file(wcs_out, grid, nphoton, tot_star, inp_par):
-    filename = "scattered.fits"
-    axes = [wcs_out.nx, wcs_out.ny]
-    dust_out = np.zeros((wcs_out.ny, wcs_out.nx), dtype=np.float32)
-
-    for i in range(wcs_out.nx):
-        for j in range(wcs_out.ny):
-            ipixel = i + j * wcs_out.nx
-            dust_out[j, i] = grid[ipixel] * tot_star / nphoton
-
-    hdu = fits.PrimaryHDU(dust_out)
-    hdu.header["CRVAL1"] = wcs_out.xrefval
-    hdu.header["CRPIX1"] = wcs_out.xrefpix
-    hdu.header["CDELT1"] = wcs_out.xinc
-    hdu.header["CROTA1"] = wcs_out.rot
-    hdu.header["CTYPE1"] = f"GLON{wcs_out.coordtype}"
-    hdu.header["CRVAL2"] = wcs_out.yrefval
-    hdu.header["CRPIX2"] = wcs_out.yrefpix
-    hdu.header["CDELT2"] = wcs_out.yinc
-    hdu.header["CROTA2"] = wcs_out.rot
-    hdu.header["CTYPE2"] = f"GLAT{wcs_out.coordtype}"
-    hdu.header["DATAMIN"] = np.min(dust_out)
-    hdu.header["DATAMAX"] = np.max(dust_out)
-    hdu.header["NPHOT"] = nphoton
-    hdu.header["ALBEDO"] = inp_par.albedo
-    hdu.header["G"] = inp_par.g
-    hdu.header["WAVELENG"] = inp_par.wave
-    hdu.header["COMMENT"] = f"Dust file: {inp_par.dust_file[:30]}"
-    hdu.header["COMMENT"] = inp_par.version
-
-    hdu.writeto(filename, overwrite=True)
-
-############
-
+print('Begining scattering')
 nphoton = 0
 time1 = time.time()
 print("Beginning Scattering")

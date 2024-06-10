@@ -32,6 +32,7 @@ class Dust_params:
 class stars:
     def __init__(self):
         self.hip_no = 0
+        self.index =0
         self.mag = 0
         self.sp_type = 0
         self.parallax = 0
