@@ -1,0 +1,9 @@
+CHANGELOG for CADS/UVS sky_model software
+(http://cads.iiap.res.in/software)
+------------------------------------------------------------------------
+
+NOTE: This file records the changes made after the release of the stable
+version sky_model-1.0
+------------------------------------------------------------------------
+
+

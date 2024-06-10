@@ -52,7 +52,7 @@ def index_greater_than(lst, value):
             return i
     return None  
 
-def GET_STAR_TEMP(sptype):
+def GET_STAR_TEMP(sptype, hip_no):
     sptype = str(sptype)
     temperature = 0 
 
@@ -221,10 +221,18 @@ def GET_STAR_TEMP(sptype):
     elif sptype.startswith("DA"):
         temperature = 35
     else:
+        # print(" Star_sptype_error", sptype,'----HIP No: ', hip_no)
         # Handle other spectral types or unknown cases
         temperature = 66  # Default temperature
 
     return temperature
+
+def GET_DISTANCE(parallax):
+    if parallax > 0:
+        distance = 1000/parallax  #distance in parsec
+    else:
+        distance = 1e6  
+    return distance
 
 def READ_CASTELLI_SPECTRA(spec_dir = Castelli_data):
     stellar_spectra = [{"temp": None, "spectrum": None, "wavelength": None} for i in range(N_CASTELLI_MODELS)]
@@ -248,6 +256,7 @@ def GET_SPECTRA(spec_dir, data):
     spectral_FOV = Spectral_FOV()
 
     wave_min , wave_max = read_parameter_file()
+    print(wave_min, wave_max)
     low_lim = index_greater_than(all_spectra[0]['wavelength'], wave_min)
     high_lim = index_greater_than(all_spectra[0]['wavelength'], wave_max)
 
@@ -267,51 +276,21 @@ def GET_SPECTRA(spec_dir, data):
             spectral_FOV.frame_size = frame_size
             spectral_type = c[7]
 
-            if (len(spectral_type)>1):
-                # print(f' Frame {i+1}) The spectra of stars in the FOV are:')
-                for j in range(len(spectral_type)):     # repeats over all stars in the FOV in frame i
-                    t_index = GET_STAR_TEMP(spectral_type[j])
-                    stellar_spectra = StellarSpectrum()
-                    data1 = all_spectra[t_index]
-                    # stellar_spectra.temperature = float(data1['temp'])
-                    # print(f"{j+1}) Spectral type: {spectral_type[j]};   Temperature index: {t_index}   ;   Temperature= {stellar_spectra.temperature}")
-                    # print (f"wavelength: {stellar_spectra.wavelength} \nSpectra: {stellar_spectra.spectrum}", end="\n \n")
-                    wavelengths = data1['wavelength']
-                    flux = data1['spectrum']
-                    scale, photons = GET_SCALE_FACTOR(j, c, wavelengths, flux )
-
-                    spectral_wavelength = wavelengths[low_lim:high_lim]
-                    spectral_flux.append(flux[low_lim:high_lim])
-                    scale_per_star.append(scale)
-                    photons_per_star.append(photons[low_lim:high_lim])
-                spectral_FOV.spectra_per_star.append(spectral_flux)
-                spectral_FOV.wavelength.append(spectral_wavelength)
-                spectral_FOV.scale.append(scale_per_star)
-                spectral_FOV.photons.append(photons_per_star)
-
-            else:
-                # print(f' Frame {i +1})  The spectra of star in the FOV is:')
-                t_index = GET_STAR_TEMP(spectral_type[0])
-                stellar_spectra = StellarSpectrum()
+            for j in range(len(spectral_type)):     # repeats over all stars in the FOV in frame i
+                t_index = GET_STAR_TEMP(spectral_type[j])
                 data1 = all_spectra[t_index]
-                # stellar_spectra.temperature = float(data1['temp'])
-                # stellar_spectra.wavelength = np.array(data1['wavelength'][low_lim:high_lim])
-                # stellar_spectra.spectrum = np.array(data1['spectrum'][low_lim:high_lim])
-                # print(f" Spectral type: {spectral_type[0]}; Temperature index: {t_index}  ; Temperature= {stellar_spectra.temperature}")
-                # print (f"wavelength: {stellar_spectra.wavelength} \nSpectra: {stellar_spectra.spectrum}", end="\n \n")
                 wavelengths = data1['wavelength']
                 flux = data1['spectrum']
-                scale, photons = GET_SCALE_FACTOR(0, c, wavelengths, flux )
+                scale, photons = GET_SCALE_FACTOR(c[4][j], c[5][j], c[6][j], wavelengths, flux)
 
                 spectral_wavelength = wavelengths[low_lim:high_lim]
                 spectral_flux.append(flux[low_lim:high_lim])
                 scale_per_star.append(scale)
                 photons_per_star.append(photons[low_lim:high_lim])
-
-                spectral_FOV.spectra_per_star.append(spectral_flux)
-                spectral_FOV.wavelength.append(spectral_wavelength)
-                spectral_FOV.scale.append(scale_per_star)
-                spectral_FOV.photons.append(photons_per_star)
+            spectral_FOV.spectra_per_star.append(spectral_flux)
+            spectral_FOV.wavelength.append(spectral_wavelength)
+            spectral_FOV.scale.append(scale_per_star)
+            spectral_FOV.photons.append(photons_per_star)
 
 
         else:
@@ -325,9 +304,16 @@ def GET_SPECTRA(spec_dir, data):
     
     return spectral_FOV
 
-def GET_SCALE_FACTOR(j, c, waveL_range, stellar_spectra):
+def Trim_Spectral_data(data, photons):
+    wave_min , wave_max = read_parameter_file()
+    # print(wave_min, wave_max)
+    low_lim = index_greater_than(data['wavelength'], wave_min)
+    high_lim = index_greater_than(data['wavelength'], wave_max)
+    return data['wavelength'][low_lim: high_lim], data['spectrum'][low_lim: high_lim], photons[low_lim: high_lim]
 
-    V_mag, parallax, B_V= c[4][j], c[5][j],c[6][j]
+def GET_SCALE_FACTOR( V_mag, parallax, B_V, waveL_range, stellar_spectra):
+
+    # V_mag, parallax, B_V= c[4][j], c[5][j], c[6][j]
     scale = 0
     tot_photons = []
 
@@ -350,22 +336,37 @@ def GET_SCALE_FACTOR(j, c, waveL_range, stellar_spectra):
 
         ebv = B_V - (b_mag - v_mag)
         ebv = max(ebv, 0)
-        if parallax > 0:
-            distance = 1000/parallax  #distance in parsec
-        else:
-            distance = 1e6  
+        distance = GET_DISTANCE(parallax)
 
         scale = 3.64e-9 * pow(10, -0.4 * (V_mag - 3.1 * ebv)) / vflux
         scale = scale * distance**2
 
         for w in  range (len(waveL_range)):
             photon_number = stellar_spectra[w] * scale * 4 * math.pi * ERG_TO_PHOT * waveL_range[w]
+            if (photon_number <= 1e-10):
+                photon_number = 0
             tot_photons.append(photon_number)
 
         # if hipstar['HD_NO'] in [158926, 160578]:
         #     print(f"{hipstar['HIP_NO']} {hipstar['sp_type']} {stellar_spectra[sindex]['filename']} {sindex} {hipstar['V_mag']} {bflux} {vflux} {hipstar['scale']} {stellar_spectra[sindex]['spectrum'][windex]}")
     # print(scale, tot_photons)
     return scale, tot_photons
+
+def GET_All_STAR_TEMP(sptype_list, hip_no_list):
+    t_index = []
+    for i ,sptype in enumerate(sptype_list):
+        t_index.append(GET_STAR_TEMP(sptype, hip_no_list[i]))
+    return t_index
+
+def GET_ALL_STAR_DISTANCE(parallax_list):
+    distance = []
+    for parallax in parallax_list:
+        distance.append(GET_DISTANCE(parallax))
+    return distance
+
+def GET_SCALE_FACTOR_ALL_STARS(all_spectra):
+    return 0
+
 
 
 # # Example usage

@@ -1,0 +1,7 @@
+CHANGELOG for UVS Zodiacal light modelling software
+(http://cads.iiap.res.in/software)
+------------------------------------------------------------------------
+
+NOTE: This file records the changes made after the release of the stable
+version UVS_zodiacal_model-1.0 
+------------------------------------------------------------------------

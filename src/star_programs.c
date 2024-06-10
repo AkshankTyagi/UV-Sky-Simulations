@@ -24,7 +24,7 @@ int HIP_READ_LINE(FILE *hipfile, struct STARS *line)
                 break;
             case 8:  line->ra       = atof(token);
                 break;
-            case 9:  line->dec      = atof(token);
+            case 9:  line->dec      = atof(token);`
                 break;
             case 11: if (atof(token) > 0)
                 line->distance = 1000./atof(token);

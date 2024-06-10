@@ -5,6 +5,7 @@ import datetime
 import numpy as np
 import pandas as pd
 from configparser import ConfigParser
+from star_spectrum import *#,GET_SPECTRA
 from view_orbit import get_folder_loc
 folder_loc = get_folder_loc()
 
@@ -26,24 +27,29 @@ def read_parameter_file(filename= params_file, param_set = 'Params_1'):
 
 _, _ = read_parameter_file()
 
+def get_abc(hip):
+    return 3*hip
+
 # read hipparcos catalogue 'hip_main.dat'
-def read_hipparcos_data(FILENAME = hipp_file):
+def read_hipparcos_data(FILENAME = hipp_file, mag_threshold = True):
     # Field H1: Hipparcos Catalogue (HIP) identifier
     # Field H5: V magnitude
     # Fields H8–9:  The right ascension, α , and declination, δ (in degrees)    
-    threshold= star_mag_threshold
-    print (f'Stars apparent magnitude Threshold= {threshold}')
-
+    threshold = star_mag_threshold
     try:
         df = pd.read_csv(FILENAME, header=None,
                          sep = '|', skipinitialspace=True).iloc[:, [1, 5, 8, 9, 11, 37, 76]]
         df.columns = ['hip', 'mag', 'ra_deg', 'de_deg', 'trig_parallax', 'B-V', 'Spectral_type']
 
         df['mar_size'] = 2*(threshold - df['mag'])
+        df['distance'] = GET_ALL_STAR_DISTANCE(df['trig_parallax'])
+        df['t_index'] = GET_All_STAR_TEMP(df['Spectral_type'], df['hip'])
+        
         # filter data above
-
-        q = 'mag <= @threshold'
-        df = df.query(q) 
+        if mag_threshold == True:
+            print (f'Stars apparent magnitude Threshold= {threshold}')
+            q = 'mag <= @threshold'
+            df = df.query(q) 
         return df  
     
     except FileNotFoundError:

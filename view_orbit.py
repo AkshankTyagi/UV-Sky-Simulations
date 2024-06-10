@@ -97,6 +97,12 @@ def get_ra_dec_from_sv(r, v):
     # return
     return alfa, delta,
 
+def get_cords_from_ra_dec (ra, dec, distance):
+    x = np.cos(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
+    y = np.sin(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
+    z = np.sin(np.deg2rad(dec))*distance
+    return x, y, z
+
 # returns a list of state vectors, ra, dec for a
 # given sgp4 satellite object
 def propagate(sat, time_start, time_end, dt):
@@ -110,14 +116,16 @@ def propagate(sat, time_start, time_end, dt):
     right_ascension = []; declination = []
     for j in time_arr.tolist():
         p, v = sat.propagate(j.year, j.month, j.day, j.hour, j.minute, j.second)
+        # print(p,v)
         ra, dec = get_ra_dec_from_sv(p, v)
         # list packing
         position.append(p); velocity.append(v)
         right_ascension.append(ra); declination.append(dec)
         
 
-    # slice into columnsṇ
+    # slice into columns
     pos, vel   = list(zip(*position)), list(zip(*velocity))
+    # print(pos, vel)
     # print (position)
     X, Y, Z    = np.array(pos[0]), np.array(pos[1]), np.array(pos[2])
     VX, VY, VZ = np.array(vel[0]), np.array(vel[1]), np.array(vel[2])
@@ -162,7 +170,7 @@ def main():
     satellite = get_satellite(line1, line2)
     # read star data
     df = read_hipparcos_data(hipp_file)
-    
+    print (df[:20])
     # time period for one revolution
     t_period = N_revolutions* 2 * np.pi * (a**3/mu)**0.5
     print("Time period of Satellite =",t_period,'sec')
@@ -184,12 +192,6 @@ def main():
     # times, state_vectors, celestial_coordinates  
     time_arr, state_vectors, celestial_coordinates = get_simulation_data(satellite, df, start, t_period, t_slice, roll)
     Spectra = GET_SPECTRA(castelli_dir, celestial_coordinates)
-    # print(Spectra.frame)
-    # print(Spectra.wavelength)
-    # print(Spectra.spectra_per_star)
-    # with open('star_data.pkl',"wb") as f:
-    #     data = celestial_coordinates
-    #     pickle.dump(data, f)
 
     # animate
     animate(time_arr, state_vectors, celestial_coordinates, Spectra, r)

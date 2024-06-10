@@ -177,7 +177,7 @@ int main (int argc, char *argv[])
         printf("%s %s\n", "Can't find stellar file:", inp_par.hipparcos_file);
         exit(EXIT_FAILURE);
     }
-    tot_star = 0;
+    tot_star = 0;  
     for (i = 0; i < NHIP_STARS; ++i){
         tst = HIP_READ_LINE(hipfile, &star);
         tst = GET_STAR_TEMP(&star);
@@ -390,7 +390,7 @@ int main (int argc, char *argv[])
     for (i = 1; i < NSTARS; ++i)
         star_random[i] = star_random[i-1] + hipstars[star_list[i]].tot_photons;
     /**************************** End Hipparcos star read ******************************/
-
+ 
 //Finally begin the actual scattering
     nphoton = 0;
     time(&time1);
@@ -420,6 +420,7 @@ int main (int argc, char *argv[])
         }
 
         NEW_PHOTON  = TRUE;
+
         /*
          Select star. We have created an array and now just have to pick a random number
          to select the star

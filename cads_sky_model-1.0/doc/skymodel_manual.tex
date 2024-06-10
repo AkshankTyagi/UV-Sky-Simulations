@@ -1,0 +1,500 @@
+\documentclass[12pt]{article}
+
+\newcommand{\cmdshell}[1]{\vspace{0.3cm}\centerline{
+        \colorbox{lightgrey}{\makebox[\textwidth][l]{#1}}
+        \vspace{0.3cm}}
+}
+
+\parindent 0.0pt
+\textwidth 7.in
+\textheight 9.0in
+\topmargin -0.7in
+\oddsidemargin -0.5in
+
+%%**** Authors macros ******
+\renewcommand{\i}{\item}
+\renewcommand{\theenumi}{\arabic{enumi}}
+\def\as{\prime\prime}
+\def\i{\item}
+\newcommand{\msun}{M_{\odot}}
+\newcommand{\mbh}{M_{\bullet}}
+\newcommand{\mblue}{M_{\rm B}}
+\newcommand{\msigma}{\mbh\text{-}\s}
+\newcommand{\mmblue}{\mbh\text{-}M_{\rm B}}
+\def\barr{\begin{array}}
+\def\earr{\end{array}}
+\def\berr{\begin{eqnarray}}
+\def\err{\end{eqnarray}}
+\def\berrno{\begin{eqnarray*}}
+\def\errno{\end{eqnarray*}}
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+\def\fr{\frac}
+\def\la{\langle}
+\def\ra{\rangle}
+\def\var{\varphi}
+\def\half{\frac{1}{2}}
+\def\quart{\frac{1}{4}}
+\def\third{\frac{1}{3}}
+\def\quart{\frac{1}{4}}
+\def\fifth{\frac{1}{5}}
+\def\sixth{\frac{1}{6}}
+
+\def\barr{\begin{array}}
+\def\earr{\end{array}}
+
+\def\berr{\begin{eqnarray}}
+\def\err{\end{eqnarray}}
+
+\def\berrno{\begin{eqnarray*}}
+\def\errno{\end{eqnarray*}}
+
+\def\be{\begin{equation}}
+\def\ee{\end{equation}}
+
+\def\fr{\frac}
+\def\la{\langle}
+\def\ra{\rangle}
+\def\var{\varphi}
+\def\half{\frac{1}{2}}
+\def\quart{\frac{1}{4}}
+\def\third{\frac{1}{3}}
+\def\quart{\frac{1}{4}}
+\def\fifth{\frac{1}{5}}
+\def\sixth{\frac{1}{6}}
+
+\providecommand{\appendixname}{}
+\renewcommand{\appendixname}{Appendix}
+
+\newcommand{\susic}{supersymmetric }
+\newcommand{\susy}{supersymmetry }
+\newcommand{\Susy}{Supersymmetry }
+\newcommand{\sss}{superstring\,\,}
+\newcommand{\sg}{supergravity\,\,}
+
+\newcommand{\antis}{anti-symmetric\,\,}
+\newcommand{\assyl}{asymmetrical\,\,}
+
+\newcommand{\sst}{superstring theory\,\,}
+\newcommand{\hsst}{heterotic superstring theory\,\,}
+\newcommand{\CC}{cosmological constant\,\,}
+\newcommand{\eos}{equation of state\,\,}
+\newcommand{\hsg}{heterotic superstring\,\,}
+\newcommand{\IP}{indeterminacy principle\,\,}
+\newcommand{\ccs}{complex chiral supermultiplets\,\,}
+
+\newcommand{\ws}{world-sheet\,\,}
+
+\newcommand{\flucs}{fluctuations\,\,}
+\newcommand{\fluc}{fluctuation\,\,}
+
+\newcommand{\gv}{gravitational\,\,}
+\newcommand{\st}{space-time\,\,}
+
+\newcommand{\coffs}{coefficients\,\,}
+\newcommand{\coff}{coefficient\,\,}
+
+\newcommand{\coos}{coordinates\,\,}
+\newcommand{\coo}{coordinate\,\,}
+
+\newcommand{\perbs}{perturbations\,\,}
+\newcommand{\perb}{perturbation\,\,}
+
+\newcommand{\subs}{substitution\,\,}
+\newcommand{\Subs}{Substituting\,\,}
+
+\newcommand{\comps}{components\,\,}
+\newcommand{\bg}{background\,\,}
+\newcommand{\hd}{higher-derivative\,\,}
+\newcommand{\U}{Universe\,\,}
+\newcommand{\rmov}{right-moving\,\,}
+\newcommand{\lmov}{left-moving\,\,}
+\newcommand{\comp}{component\,\,}
+\newcommand{\rep}{representation\,\,}
+\newcommand{\go}{goldstino\,\,}
+\newcommand{\mo}{modulino\,\,}
+\newcommand{\eq}{equation\,\,}
+\newcommand{\eqs}{equations\,\,}
+\newcommand{\emt}{energy-momentum tensor\,\,}
+\renewcommand{\dim}{dimensional\,\,}
+\newcommand{\inv}{invariant\,\,}
+\newcommand{\ed}{energy-density\,\,}
+\newcommand{\eom}{equation of motion\,\,}
+
+\newcommand{\ns}{\!\!}
+\newcommand{\tc}{\textcircled}
+\newcommand{\dder}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\dd}[1]{\frac{\partial}{\partial {#1}}}
+\newcommand{\llsim}{\genfrac{}{}{0pt}{2}{\ll}{\sim}}
+\newcommand{\pol}[1]{\stackrel{\rm LCP}{\mathrm{RCP}}}
+\newcommand{\tx}{\ensuremath{\underset{\textstyle\small\sim}{x}}}
+%\newcommand{\rss}{\scriptscriptstyle}
+\newcommand{\app}{\approx}
+\newcommand{\del}{\partial}
+\newcommand{\bit}[1]{\ensuremath{\textit{\bfseries{#1}}}}
+\newcommand{\me}{\mathrm{e}}
+\newcommand{\mi}{\mathrm{i}}
+\newcommand{\no}{\nonumber}
+\newcommand{\und}{\underline}
+\renewcommand{\a}{\alpha}
+\renewcommand{\b}{\beta}
+\newcommand{\g}{\gamma}
+\newcommand{\G}{\Gamma}
+\renewcommand{\d}{\delta}
+\newcommand{\D}{\Delta}
+\newcommand{\e}{\epsilon}
+\renewcommand{\l}{\lambda}
+\renewcommand{\L}{\Lambda}
+\renewcommand{\O}{\Omega}
+\newcommand{\s}{\sigma}
+\newcommand{\Sig}{\Sigma}
+\renewcommand{\t}{\theta}
+\renewcommand{\k}{\kappa}
+\newcommand{\om}{o}
+
+
+\begin{document}
+
+\centerline{\LARGE\bf UV SKY MODEL}
+
+%\vskip 0.2in
+
+\begin{center}
+\textbf{Author: }Jayant Murthy ({\bf E-mail}: murthy@iiap.res.in)\\
+\end{center}
+
+%\vskip 0.2in
+
+.\hrulefill
+
+This program is free software; you can redistribute it and/or modify it under the terms of
+the GNU General Public License as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+.\hrulefill
+
+\section{Introduction}
+
+Sky model  is a tool to predict the appearance of the sky at any wavelength.
+It comprises three parts: the zodiacal light background, the diffuse galactic
+light and the stars. Provision is made for different filters. All programs are
+written in ANSI C.
+
+
+\section{Contents of the package}
+
+\subsection{Data files}
+
+Inside the folder {\tt data/}
+
+\newenvironment{listing}{\begin{trivlist}\itemsep 0.02pt}{\end{trivlist}}
+
+\begin{listing}
+\item{\bit{-- stellar models:}} Castelli and Kurucz Atlas: stellar\_data/castelli/
+\item{\bit{-- Hipparcos Catalogue:}} stellar\_data/hip\_main.txt
+\item{\bit{-- Cross-sections from Draine (2003):}} stellar\_data/cross\_sec.txt
+\item{\bit{-- Sample filter response files: }} sample\_filters/galex\_FUV.txt,
+sample\_filters/galex\_NUV.txt, sample\_filters/uvit\_FUVBAF2.txt, sample\_filters/uvit\_NUVN2.txt
+\item{\bit{-- Diffuse background spectrum file:}}  diffuse\_data/bkgd\_spectrum.txt
+\item{\bit{-- GALEX NUV and FUV all sky data:}}  diffuse\_data/nuv\_allsky.txt,
+diffuse\_data/fuv\_allsky.txt
+\item{\bit{-- Zodiacal light spectrum file:}}  zodiacal\_data/zodiacal\_spec.txt
+\item{\bit{-- Zodiacal Data model file (Leinert et al. 1998):}}  zodiacal\_data/leinert\_dist.txt
+\end{listing}
+
+\subsection{Source Code}
+
+
+
+Inside the folder {\tt src/}\\
+-- source codes  and coresponding header files.
+
+\subsection{Other files}
+\begin{listing}
+\i -- README.txt: \bit{A quick guide to the features, installation and running the software}
+\i -- INSTALL.txt:\bit{ Generic installation instructions}
+\i -- COPYING.txt: \bit{GNU Public License}
+\i -- AUTHORS.txt: \bit{Author's name}
+\i -- ChangeLog.txt: \bit{Log of versions}
+\end{listing}
+
+
+\section{Installation}
+
+\begin{listing}
+\i{\bf Obtaining the source file.}
+\newenvironment{small_listing}{\begin{enumerate}\itemsep 0.001pt}{\end{enumerate}}
+\begin{small_listing}
+\i  Download the package from the following web page:
+{\tt http://cads.iiap.res.in/downloads}.
+Source packages are available as (a) zipped and (b) tar-gzipped files,
+which contains the sources.\\
+\i Since you are reading this manual, you would have already downloaded the
+package and extracted the contents.
+\i Binary packages are available for a few Redhat-Linux based operating systems.
+\end{small_listing}
+\i{\bf Installing Pre-requisites.}\\
+The following libraries are needed to run this software :\\
+$CFITSIO$ for FITS routines from: {\tt http://heasarc.gsfc.nasa.gov/docs/software/fitsio/fitsio.html}\\
+$Libnova$ to calculate Sun position from: {\tt http://libnova.sourceforge.net/}. If you
+are compiling the source code, you will have to install the libraries and their respective
+header files.
+\end{listing}
+
+\section{Compilation}
+
+    Follow these 4 steps:
+
+\begin{enumerate}
+
+\item  `cd' to the directory containing the package's source code and type`./configure'
+to configure the package for your system. If $CFITSIO$ library
+and header files are not in the standard path, then you may need to pass on the
+following argument to configure `--with-cfitsio=path/to/cfitsio'. The code will
+search $fitsio$ header files in:
+\begin{enumerate}
+\item{path/to/cfitsio}
+\item{path/to/cfitsio/include}
+\item{path/to/cfitsio/include/cfitsio}
+\end{enumerate}
+and library (libcfitsio.so or libcfitsio.a) in:
+\begin{enumerate}
+\item{path/to/cfitsio}
+\item{path/to/cfitsio/lib}
+\item{path/to/cfitsio/lib64}
+\end{enumerate}
+Similarly, for $libnova$ (in case `configure' failed to detect it):
+`--with-libnova=/path/to/libnova'. Running `configure' takes a
+few seconds. While running, it prints some messages telling which
+features it is checking for.
+
+If configuration ended without errors, you shall receive the following messages:
+\begin{verbatim}
+checking for cfitsio... yes
+checking for libnova... yes
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating src/Makefile
+config.status: creating doc/Makefile
+config.status: creating config.h
+config.status: config.h is unchanged
+config.status: executing depfiles commands
+
+ +------------------------------------------------------------------+
+ | Configuration complete                                           |
+ | Type 'make' to compile the software, followed by 'make install'  |
+ |                   All the very best! :-)                         |
+ |                                             --CADS Software Team |
+ +------------------------------------------------------------------+
+
+\end{verbatim}
+\item Type `make' to compile the package.
+\item Type `make install' to install the programs and any data files and
+     documentation. By default the binary is copied to /usr/local/bin and in that
+     case, you need to run 'make install' as root on linux/unix machines. You may
+     change this destination by passing on the following argument to configure:
+'--prefix=/your/chosen/destination', which would result in the binary in
+/your/chosen/destination/bin. You may need to ensure that in \$PATH to run the program.
+\item You can remove the program binaries and object files from the source code
+     directory by typing `make clean'. You may read more about configure script
+and others in the accompanying file named `INSTALL.txt'.
+
+If everything is correct there should be no error or warning messages during this process.
+
+\end{enumerate}
+
+\section{Typical Run}
+\newenvironment{small_listing}{\begin{enumerate}\itemsep 0.001pt}{\end{enumerate}}
+\begin{small_listing}
+\i Run sky\_model to generate the default parameter file by typing the command `sky\_model'.
+\i Edit the default parameter file:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+\bf Keyword          &   \bf Description\\
+\hline
+\multicolumn{2}{|c|}{\bf Time \& date information}                        \\
+\hline
+TIME\_UT           &    Time of the day (UT, hours. range: $0.0 - 24.0$) \\
+DAY\_OF\_MONTH      &  Day of the month (unitless, range: $0 - 31$) \\
+MONTH             & Month of the year (unitless, range: $1 - 12$) \\
+YEAR              & Year (unitless, range: $1900 - 2100$ for max. accuracy) \\
+\hline
+\multicolumn{2}{|c|}{\bf List of files}\\
+\hline
+ZODIAC\_MODEL      &  Zodiacal Data model file\\
+ZODIAC\_SPECTRUM   &  Zodiacal light spectrum file\\
+BKGD\_MODEL        &  GALEX NUV and FUV all sky data\\
+BKGD\_SPECTRUM     &  Diffuse background spectrum file\\
+OUTPUT\_FILE       &  Location and name of output fits file\\
+STELLAR\_SPECTRUM  &  Stellar models\\
+CROSS\_SEC         &  Drain's extinction model\\
+STAR\_CAT          &  Hipparcos Catalogue\\
+FILTER\_SPECTRUM   &  Filter response\\
+\hline
+\multicolumn{2}{|c|}{\bf WCS parameters for output FITS file}\\
+\hline
+XREFVAL    &   Galactic coordinate at the center\\
+YREFVAL    &  Galactic coordinate at the center\\
+XINC       &  Pixel size\\
+YINC       &  Pixel size\\
+ANGSIZE    &  Angular size\\
+COORDTYPE  &  Projection type \\
+           & Valid types are: -TAN, -STG, -SIN, -NCP, -ARC, -CAR, -MER, -AIT\\
+GAL\_COORD  &  Flag for galactic coordinates(0=no, 1=yes)   \\
+\hline
+\multicolumn{2}{|c|}{\bf Background parameters}\\
+\hline
+ANG\_LIMIT  &  The number of degrees to smooth over (default value 3 deg.) \\
+CSC\_LAW    &  Cosecent law constant\\
+\hline
+\multicolumn{2}{|c|}{\bf Which elements to include}\\
+\hline
+ZOD\_INC    &  Flag for including zodaical light (0=no, 1=yes) \\
+GAL\_INC    &  Flag for including diffuse background (0=no, 1=yes) \\
+STAR\_INC   &  Flag for including star catalogue (0=no, 1=yes) \\
+\hline
+\end{tabular}
+\end{center}
+
+\i Run the code again to generate a desired output.
+\end{small_listing}
+
+\newpage
+
+\section{Program Operation}
+
+The program is modular and self-documenting. The steps are as follows:
+\begin{enumerate}
+\i{\bf READ\_PARAMS}: Read the parameters from the parameter file which has to named
+{\bf diffuse\_initparams.txt}. If this file does not exist, it will be created with a
+default set of parameters.
+\i The output image data, stored in ({\bf data}) array is defined by the
+WCS parameters as defined in the parameter file. We also define an array to hold
+the errors ({\bf err}), the predicted
+galactic background ({\bf diffuse\_data}) and the predicted zodiacal light ({\bf zod\_data}).
+\i The wavelength and spectral arrays for the zodiacal light are defined with {\bf ZOD\_SPEC}
+elements. The default value is 25763 elements for the solar spectrum, defined by
+Colina et al. (1996).
+\i If {\bf gal\_in}c $= 1$ we calculate the diffuse sky background; otherwise
+the array is filled with zeros.
+\i {\bf CALC\_BKGD\_FLUX}: This module calculates the diffuse sky background.
+The inputs are the name of the background file ({\bf bkgd\_file}),
+the axes {\bf (naxes}), the WCS parameters ({\bf wcs\_in}), the angle within which
+to include data ({\bf ang\_limit}) and $k$ -- the factor for the cosecant law ({\bf csc\_law}).
+The output parameters are the calculated backgrounds ({\bf data}) and error ({\bf err}) arrays.
+\begin{enumerate}
+\i Begin by reading data into arrays. The maximum size of the array is set to \\
+{\bf MAX\_BKGD\_ELEM} (100,000 by default).
+\i  Convert coordinates into cartesian coordinates $(x, y, z)$.
+\i Loop through all $i$ and $j$ in the array.
+\i Use {\bf fits\_pix\_to\_world} from {\it CFITSIO} to convert the $i,j$ into galactic
+coordinates using the WCS.
+\i  If the point is vaild then convert it into cartesian coordinates $(x0, y0, z0)$.
+\i  Run through all the input background points to find those within {\bf ang\_limit}.
+\i Add them together weighting by the square of the cosine of the angle.
+\i  If there is no data nearby, fill the pixel according to the cosecant law:
+$$
+\mathit{val} = \fr{k}{abs(\sin{(b))}}\,
+$$
+where $b$ is the galactic latitude and $k$ is the cosecant law factor, specified
+in the input parameter file. $\mathit{val}$ = $k$ at the poles (abs(sin~b) = 1).
+
+
+\end{enumerate}
+\i Calculate the total background flux in the field.
+\i If {\bf zod\_in}c $= 1$ we calculate the zodiacal light.
+\i {\bf ZOD\_SPECT\_READ} reads in the spectral dependence of the zodiacal light.
+The input is the name of the file and the outputs are the wavelength and spectrum.
+\i {\bf CALC\_ZOD\_FLUX}: This module calculates the zodiacal light with inputs of
+the name of the zodiacal distribution ({\bf zod\_file}), the time ({\bf hour, day,
+month, year}), the axis definition ({\bf naxes}) and the WCS parameters ({\bf wcs\_in}).
+All of these parameters are defined in the parameter file.
+\begin{enumerate}
+\i Begin by reading the zodiacal light into an array. This is done using
+{\bf ZOD\_DIST\_READ} which reads the distribution of the  zodiacal light ({\bf zod\_dist})
+and the ecliptic coordinate axes ({\bf table\_ecl, table\_beta}) from the distribution file
+({\bf zod\_file}).
+\i Calculate the position of the Sun from the observation date and time $t_{\rm UT}$ (UT).
+The Julian date is calculated from the time using the formula:\\
+            if (month $\leq 2$) { month=month$+12$; year=year$-1$;}
+$$
+JD  = \mbox{Int}\left(365.25\times \mbox{year})\right) +\mbox{Int}\left(30.6001
+\times \mbox{(month+1)}\right) \no \\
+- 15 + 1720996.5 + \mbox{day} +\fr{t_{\rm UT}}{24.0}\,,
+$$
+where Int means the integer of the value. 
+\i Equatorial coordinates of the Sun is calculated using the $libnova$ routines.
+\i In the same manner as the galactic background, we step through all pixels $(ix, iy)$
+\i Use {\bf fits\_pix\_to\_world} to convert into galactic coordinates.
+\i If the point is valid, convert the galactic coordinates into ecliptic coordinates.
+\i Convert the ecliptic coordinates into helioecliptic coordinates (angle from Sun).
+\i Get the values for the zodiacal light from the table. Note that this is the scale value at
+ 5000\, \AA.
+\end{enumerate}
+\i Find the subscript for the observation value in the zodiacal light spectrum. This
+multiplied by the zodiacal light distribution will give the zodiacal light in photon units
+because the spectrum is scaled.
+\i Calculate the total zodiacal light in the field.
+\i If star\_inc $= 1$ we add stars.
+\i Read stellar data.
+\begin{enumerate}
+\i The spectral type from the Hipparcos file is converted into a temperature $T$ and surface
+gravity $g$ as recommended in the STScI
+page\footnote{\tt http://www.stsci.edu/hst/observatory/cdbs/castelli\_kurucz\_atlas.html}.
+We assume that all the stars are main sequence with flux scaled to the observed magnitude.
+\i Read cross-sections from cross-section file.
+\i  Read Hipparcos data.
+\i  Convert spectral type into a Castelli model.
+\i  Scale the model flux to the magnitude at the Earth and correct for extinction by
+the function {\bf CALC\_FLUX}.
+$$
+\mbox{scale} = 3.64\times 10^{-9} \fr{10^{-0.4(V_{\rm mag} - 3.2  ebv)}}{vflux}\,,
+$$
+where $ebv$ is $E(B-V)$.
+\i Complete for all Hipparcos stars so that they are all read into memory.
+\i Begin reading locations from location file and process each location individually.
+\i Calculate $x,y,z$ of position and find distance from star. The stellar flux is scaled by
+the square of the distance. Assume that the flux is extincted by the distance times the
+average density.
+\i  Loop over all the Hipparcos stars.
+\end{enumerate}
+\i Calculate the total contribution of stars in the filed.
+\i Add together the zodiacal light and the galactic background.
+\i Write out the result as a FITS file.
+\end{enumerate}
+
+
+\section{References}
+
+
+Draine, B.~T. ``Interstellar Dust Grains", 2003, Ann. Rev. Astr. Astrophys., 41, 241-289\\
+
+Leinert, C., Bowyer, S., Haikala, L. K., 1998, Astron. Astrophys. Suppl., 127, 1 \\
+
+Colina, L., Bohlin, R.~C., \& Castelli, F., ``The 0.12-2.5 micron Absolute Flux Distribution
+of the Sun for Comparison With Solar Analog Stars", 1996, AJ, 112, 307
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
