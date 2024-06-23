@@ -1,0 +1,27 @@
+[Params_1]
+hipparcos_catalogue = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\hip_main.dat
+castelli_data = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\Castelli\ckp00
+dust_file = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\green_dust_60\green_dust_60.fits
+dust_col_file = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\green_dust_60_col\green_cum_tau_60.fits
+sigma_file = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\kext_albedo_WD_MW_3.1_60_D03.all.txt
+sat_name = Astrosat
+roll = False
+roll_rate_hrs = False
+number of revolutions = 1
+n_frames = False
+t_slice = 400
+width = 0.5
+height = 7
+star_mag_threshold = 5
+limit_min = 100
+limit_max = 3800
+no_photons = 10000000
+wavelength = [1500, 2000, 3000]
+no_scatter = 5
+albedo = 0.36
+phase_func = 0.5
+azm = 40
+ele = 25
+longitudinal_spectral_width = 0.8
+interval_bw_frames = 2000
+

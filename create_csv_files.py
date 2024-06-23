@@ -1,6 +1,7 @@
 # Create and save photons file + sorted file for all stars and save it
 import pandas as pd
 import csv
+import time
 from configparser import ConfigParser
 
 from Params_configparser import *
@@ -9,6 +10,7 @@ from view_orbit import get_folder_loc
 from star_spectrum import *
 from star_data import *
 from read_dust_files import *
+
 
 folder_loc = get_folder_loc()
 params_file = f'{folder_loc}init_parameter.txt'
@@ -65,8 +67,8 @@ def Create_Allstars_flux(hipstars):
 
     # Create a DataFrame from the dictionary and save it as csv file
     df = pd.DataFrame(data_dict)
-    df.to_csv(f'diffused_data\\Allstars_flux_data[{wave_min},{wave_max}].csv', index=False)
-    print(f'diffused_data\\Allstars_flux_data[{wave_min},{wave_max}].csv created')
+    df.to_csv(f'diffused_data/Allstars_flux_data[{wave_min},{wave_max}].csv', index=False)
+    print(f'diffused_data/Allstars_flux_data[{wave_min},{wave_max}].csv created')
     return df
 
 def sort_star_list(wavel_range, photon_data):
@@ -76,7 +78,6 @@ def sort_star_list(wavel_range, photon_data):
     
     header[0] ='wavelengths'
     df = pd.DataFrame(columns= header)
-    print(df)
     # print(photon_data.iloc[0][0:])
     # print(photon_data.iloc[-1][0:])
     # print(wavel_range, photon_data[:5], df[:5])
@@ -89,9 +90,9 @@ def sort_star_list(wavel_range, photon_data):
         sorted_header_df= pd.DataFrame([sorted_header], columns= df.columns)
         # print(sorted_header)
         df = pd.concat([df, sorted_header_df], ignore_index = True)
-    print(df)
-    df.to_csv(f'diffused_data\\Sorted_star_list[{wave_min},{wave_max}].csv', index =False)
-    print(f'diffused_data\\Sorted_star_list[{wave_min},{wave_max}].csv created')
+    # print(df)
+    df.to_csv(f'diffused_data/Sorted_star_list[{wave_min},{wave_max}].csv', index =False)
+    print(f'diffused_data/Sorted_star_list[{wave_min},{wave_max}].csv created')
     return df
 
 
@@ -100,10 +101,10 @@ wavelengths = hipstars[0].wavelengths
 
 def create_sorted_list(wavelengths):
     try:
-        photon_data = pd.read_csv(f'diffused_data\\Allstars_flux_data[{wave_min},{wave_max}].csv')
+        photon_data = pd.read_csv(f'diffused_data/Allstars_flux_data[{wave_min},{wave_max}].csv')
         # print('1\n',photon_data.iloc[366])
     except FileNotFoundError:
-        print(f'diffused_data\\Allstars_flux_data[{wave_min},{wave_max}].csv not_found')
+        print(f'diffused_data/Allstars_flux_data[{wave_min},{wave_max}].csv not_found')
         photon_data = Create_Allstars_flux(hipstars)
     df = sort_star_list(wavelengths, photon_data )
     return df, photon_data
@@ -111,47 +112,64 @@ def create_sorted_list(wavelengths):
 # Calculate weighted probabilities for selecting stars
 def calc_weigthed_probab():
     try:
-        sorted_list = pd.read_csv(f'diffused_data\\Sorted_star_list[{wave_min},{wave_max}].csv')
-        photon_data = pd.read_csv(f'diffused_data\\Allstars_flux_data[{wave_min},{wave_max}].csv')
+        sorted_list = pd.read_csv(f'diffused_data/Sorted_star_list[{wave_min},{wave_max}].csv')
+        photon_data = pd.read_csv(f'diffused_data/Allstars_flux_data[{wave_min},{wave_max}].csv')
     except FileNotFoundError:
+        print('sorted_list, photon_data  csv files not found')
         sorted_list, photon_data = create_sorted_list(wavelengths)
-    print(photon_data[:3], sorted_list[:3])
+
+    print('sorted_list, photon_data obtained\n')
+    # print(photon_data[:3], sorted_list[:3])
+    # print(photon_data.max(axis=1))
 
     num_columns = photon_data.shape[1]
-    star_wgt = [0] * num_columns
-    print('sorted_list, photon_data obtained')
-
+    
     header = list(range(num_columns))
     header[0] ='wavelengths'
-    df = pd.DataFrame(star_wgt,columns= header)
-    print(df)
-    df.to_csv(f'diffused_data\\Weighted_list[{wave_min},{wave_max}].csv', index =False)
+    df = pd.DataFrame(columns= header)
+    # print(df)
+    df.to_csv(f'diffused_data/Weighted_list[{wave_min},{wave_max}].csv', index =False)
     
-    with open(f'diffused_data\\Weighted_list[{wave_min},{wave_max}].csv', mode='a') as file:
-        writer = csv.writer(file)
-        print(len(wavelengths))
-        for w in range(len(wavelengths)):
-            print(w, wavelengths[w], sorted_list.iloc[w][1], photon_data.iloc[w][int(sorted_list.iloc[w][1])+1])
-            star_wgt[0] = wavelengths[w]
-            star_wgt[1] = photon_data.iloc[w][int(sorted_list.iloc[w][1])+1]
-            for i in range(2, num_columns):
-                star_photon = photon_data.iloc[w][int(sorted_list.iloc[w][i])+1]
-                if star_photon == 0:
-                    for k in range(i, num_columns):
-                        star_wgt[k] = star_wgt[i-1]
-                    break
-                star_wgt[i] = star_wgt[i-1] + star_photon
+    print(num_columns)
+    for w in range(len(wavelengths)):
+        time1 = int(time.time())
+        star_wgt = [0] * num_columns
+        max_phot = photon_data.iloc[w][int(sorted_list.iloc[w][1])+1]
+        min_phot_limit = max_phot/1e14
+        print("wavelength_Num",w, wavelengths[w], sorted_list.iloc[w][1], max_phot, 'at time:', time1)
+        star_wgt[0] = wavelengths[w]
+        star_wgt[1] = photon_data.iloc[w][int(sorted_list.iloc[w][1])+1]
+        for i in range(2, num_columns):
+            star_photon = photon_data.iloc[w][int(sorted_list.iloc[w][i])+1]
+
+            if i%1000 ==2: #Checkpoint for time
+                time2 = int(time.time())
+                print('Checkpoints------- ',i,') star_no:', sorted_list.iloc[w][i], star_photon, '### duration:', time2 - time1)
+
+            if star_photon < min_phot_limit:
+                time3 = int(time.time())
+                cumul_phot = star_wgt[i-1]
+                print(i, "additions were done in time", time3-time1, "(s),---- Cumul_Photons:", cumul_phot)
+                star_wgt[i:num_columns] = [cumul_phot] * (num_columns - i)
+                break
+            star_wgt[i] = star_wgt[i-1] + star_photon
+        with open(f'diffused_data/Weighted_list[{wave_min},{wave_max}].csv', mode='a') as file:
+            writer = csv.writer(file)
+            writer.writerow(star_wgt)
+
+
         # print(star_wgt)
-        writer.writerow(star_wgt)
     # header = list(range(num_columns))
     # header[0] ='wavelengths'
     # df = pd.DataFrame(star_wgt,columns= header)
     # print(df)
-    # df.to_csv(f'diffused_data\\Weighted_list[{wave_min},{wave_max}].csv', index =False)
-    print(f'diffused_data\\Weighted_list[{wave_min},{wave_max}].csv created')
-    return pd.read_csv(f'diffused_data/Weighted_list@3[{wave_min},{wave_max}].csv')
+    # df.to_csv(f'diffused_data/Weighted_list[{wave_min},{wave_max}].csv', index =False)
+    print(f'diffused_data/Weighted_list[{wave_min},{wave_max}].csv created')
+    return pd.read_csv(f'diffused_data/Weighted_list[{wave_min},{wave_max}].csv')
 
 star_wgt = calc_weigthed_probab()
+# photon_data = pd.read_csv(f'diffused_data/Allstars_flux_data[{wave_min},{wave_max}].csv')
+# print(photon_data.shape[1])
 
 
 def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, starlog, misslog, totlog, distlog, scatlog):
