@@ -14,7 +14,7 @@ from configparser import ConfigParser
 
 from star_spectrum import * 
 from star_spectrum import GET_STAR_TEMP
-from view_orbit import get_folder_loc
+from Params_configparser import get_folder_loc
 
 folder_loc = get_folder_loc()
 params_file = f'{folder_loc}init_parameter.txt'

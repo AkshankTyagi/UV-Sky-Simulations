@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from configparser import ConfigParser
 import math
-from view_orbit import get_folder_loc
+from Params_configparser import get_folder_loc
+
 folder_loc = get_folder_loc()
 
 class StellarSpectrum:
@@ -52,7 +53,7 @@ def index_greater_than(lst, value):
             return i
     return None  
 
-def GET_STAR_TEMP(sptype, hip_no):
+def GET_STAR_TEMP(sptype, hip_no = 0):
     sptype = str(sptype)
     temperature = 0 
 

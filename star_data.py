@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from configparser import ConfigParser
 from star_spectrum import *#,GET_SPECTRA
-from view_orbit import get_folder_loc
+from Params_configparser import get_folder_loc
 folder_loc = get_folder_loc()
 
 # Hipparcos Catalogue [hip_main.dat]
@@ -38,8 +38,8 @@ def read_hipparcos_data(FILENAME = hipp_file, mag_threshold = True):
     threshold = star_mag_threshold
     try:
         df = pd.read_csv(FILENAME, header=None,
-                         sep = '|', skipinitialspace=True).iloc[:, [1, 5, 8, 9, 11, 37, 76]]
-        df.columns = ['hip', 'mag', 'ra_deg', 'de_deg', 'trig_parallax', 'B-V', 'Spectral_type']
+                         sep = '|', skipinitialspace=True).iloc[:, [1, 5, 8, 9, 11, 37, 76, 32, 34]]
+        df.columns = ['hip', 'mag', 'ra_deg', 'de_deg', 'trig_parallax', 'B-V', 'Spectral_type', 'B_mag', 'V_mag']
 
         df['mar_size'] = 2*(threshold - df['mag'])
         df['distance'] = GET_ALL_STAR_DISTANCE(df['trig_parallax'])

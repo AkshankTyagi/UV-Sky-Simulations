@@ -15,21 +15,18 @@ from configparser import ConfigParser
 config = ConfigParser()
 import pickle
 
-def get_folder_loc():
-    folder_loc = r'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\'
-    return folder_loc
-
 from Params_configparser import *
 from Satellite_configparser import *
 from star_data import *#, filter_by_fov, read_hipparcos_data
 from plot import *#,animate
 from star_spectrum import *#,GET_SPECTRA
 
+
 # include the parameter file and sattelite TLE file
 folder_loc = get_folder_loc()
 params_file = f'{folder_loc}init_parameter.txt'
 sat_file = f'{folder_loc}Satellite_TLE.txt'
-print(params_file)
+# print(params_file)
 
 def read_parameter_file(filename=params_file, param_set = 'Params_1'):
     config.read(filename)
@@ -97,11 +94,6 @@ def get_ra_dec_from_sv(r, v):
     # return
     return alfa, delta,
 
-def get_cords_from_ra_dec (ra, dec, distance):
-    x = np.cos(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
-    y = np.sin(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
-    z = np.sin(np.deg2rad(dec))*distance
-    return x, y, z
 
 # returns a list of state vectors, ra, dec for a
 # given sgp4 satellite object

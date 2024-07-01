@@ -5,7 +5,7 @@
 from configparser import ConfigParser
 from astropy.io import fits
 import numpy as np
-from view_orbit import get_folder_loc
+from Params_configparser import get_folder_loc
 # from diffuse_scattering import pc_to_cm
 
 class Dust_params:
@@ -71,34 +71,28 @@ def read_parameter_file(filename= params_file, param_set = 'Params_1'):
     dust_file = config.get(param_set, 'dust_file')
     dust_col_file = config.get(param_set, 'dust_col_file')
     sigma_file = config.get(param_set, 'sigma_file')
-    # Dust parameters:
-    num_photons = float(config.get(param_set, 'No_photons'))
-    num_scatter = float(config.get(param_set, 'No_scatter'))
-    albedo = float(config.get(param_set, 'Albedo'))
+    return 
+
+def read_scatter_parameters(filename = params_file, param_set = 'Scatter_params'):
+    dust_par = Dust_params()  # Create a Dust_params class
+    config = ConfigParser()
+    config.read(filename)
+
+    # Dust parameters: num_photons, num_scatter, wavelength_list, albedo, phase_func
+    dust_par.num_photon = float(config.get(param_set, 'No_photons'))
+    dust_par.nscatter = float(config.get(param_set, 'No_scatter'))
     wavelength = config.get(param_set, 'wavelength').strip('[]')
-    wavelength_list = [float(value) for value in wavelength.split(',')]
-    # print (wavelength_list[[0,1]])
-    phase_func = float(config.get(param_set, 'Phase_func'))
-
-    return num_photons, num_scatter, wavelength_list, albedo, phase_func
-
-def read_input_parameters():
-    dust_par = Dust_params()  # Create an instance of the Dust_params class
-    
-    num_photons, num_scatter, wavelength, albedo, phase_func = read_parameter_file()
-    print(num_photons)
-    dust_par.num_photon = int(num_photons)
-    dust_par.nscatter = int(num_scatter)
-    dust_par.wave = list(wavelength)
-    dust_par.albedo = float(albedo)
-    dust_par.g = float(phase_func)
+    dust_par.wave = [float(value) for value in wavelength.split(',')]
+    dust_par.albedo = float(config.get(param_set, 'Albedo'))
+    dust_par.g = float(config.get(param_set, 'Phase_func'))
 
     # Default debugging parameters
-    dust_par.print_debug = "no"
-    dust_par.min_gl_debug = 0
-    dust_par.max_gl_debug = 360
-    dust_par.min_gb_debug = -90
-    dust_par.max_gb_debug = 90
+    dust_par.print_debug = float(config.get(param_set, 'print_debug'))
+    dust_par.min_gl_debug = float(config.get(param_set, 'min_gl_debug'))
+    dust_par.max_gl_debug = float(config.get(param_set, 'max_gl_debug'))
+    dust_par.min_gb_debug = float(config.get(param_set, 'min_gb_debug'))
+    dust_par.max_gb_debug = float(config.get(param_set, 'max_gb_debug'))
+
     return dust_par
 
 def dust_read(dust_par, filename):
@@ -120,25 +114,17 @@ def dust_read(dust_par, filename):
     return dust_arr
 
 def read_cross_sec(sigma_file, dust_par):
-    # print (sigma_file, hipp_file)
+    wavelengths = []
+    crossX = []
+    start_line_found = False
+
     with open(sigma_file, "r") as fp:
-        lines = fp.readlines()
-        # print(lines[0])
-
-        # Find the line with the start of the cross-section data
-        start_line_index = 0
-        for i, line in enumerate(lines):
+        for line in fp:
+            if not start_line_found:
+                if line.startswith("-"):
+                    start_line_found = True
+                continue
             if line.startswith("-"):
-                start_line_index = i + 1
-                print(start_line_index)
-                break
-
-        # Read cross-section data
-        wavelengths = []
-        crossX = []
-        for line in lines[start_line_index:]:
-            if line.startswith("-"):
-                print(line)
                 break
             parts = line.split()
             if len(parts) >= 4:
@@ -146,16 +132,18 @@ def read_cross_sec(sigma_file, dust_par):
                 cross_sec = float(parts[3])
                 wavelengths.append(wave * 10000)  # Convert to Ångstroms
                 crossX.append(cross_sec)
+    
 
-    # Find the nearest wavelength
-    wavel = dust_par.wave
+    wavelengths = np.array(wavelengths)
+    crossX = np.array(crossX)
+    wavel = np.array(dust_par.wave, dtype=float)
     sigma = []
-    for wave in wavel:
-        wave = float(wave)
-        index = min(range(len(wavelengths)), key=lambda i: abs(wavelengths[i] - wave))
-        # Calculate sigma (extinction cross-section per H atom scaled to atoms/cm^3)
-        sigma.append(crossX[index]* pc_to_cm(1))
-    print (f'wavel:{wavel}')
 
+    for wave in wavel:
+        index = np.argmin(np.abs(wavelengths - wave))
+        sigma_value = crossX[index] * pc_to_cm(1)  # Convert to the desired units
+        sigma.append(sigma_value)
+
+    print(f'wavel: {wavel}')
     return sigma
 

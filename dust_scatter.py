@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 import astropy.units as u
 
+
+
 # from dust_extinction.grain_models import D03
 
 NANGLE =  100000
@@ -12,7 +14,7 @@ def PHASE_FUNCTION(cangle, g):
     pscat = (1 - g **2) / (4. * math.pi* (pow(1. + g**2 - 2. * g * cangle, 1.5)))
     return pscat
 
-def SETUP_ANGLE(angle):
+def SETUP_ANGLE(angle): 
     NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
     angle[0] = 0.0
     for i in range(1, NANGLE):
@@ -24,6 +26,11 @@ def SETUP_ANGLE(angle):
     for i in range(1, NANGLE):
         angle[i] /= max_angle
     
+def get_cords_from_ra_dec (ra, dec, distance):
+    x = np.cos(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
+    y = np.sin(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
+    z = np.sin(np.deg2rad(dec))*distance
+    return x, y, z
 
 def SETUP_SCATTER(fscat, g):
     NANGLE = len(fscat)  # Assuming NANGLE is defined outside the function
@@ -141,7 +148,7 @@ def CALC_DIST(a, b, c, x, y, z):
 
 def FIRST_PHOTON(x_new_ptr, y_new_ptr, z_new_ptr,
                  delta_x_ptr, delta_y_ptr, delta_z_ptr,
-                 dust_par, star, angle, dsfmt, ran_array, nrandom, ran_ctr, init_seed):
+                 dust_par, star, angle,  ran_array, nrandom, ran_ctr, init_seed):
     NEW_PHOTON = True
     iter = 0
     step_delta = 0
@@ -157,9 +164,9 @@ def FIRST_PHOTON(x_new_ptr, y_new_ptr, z_new_ptr,
         d_new = dp
         d_old = dp
 
-        unif_rand = GET_RANDOM_ARRAY(dsfmt, ran_array, nrandom, ran_ctr, init_seed)
+        unif_rand = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed)
         theta = CALC_THETA(angle, unif_rand)
-        phi = GET_RANDOM_ARRAY(dsfmt, ran_array, nrandom, ran_ctr, init_seed) * 2 * math.pi
+        phi = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed) * 2 * math.pi
 
         CALC_DELTA_X(delta_x_ptr, delta_y_ptr, delta_z_ptr, theta, phi)
 
@@ -231,17 +238,19 @@ def MATCH_TAU(x_new_ptr, y_new_ptr, z_new_ptr, dust_par, delta_x_ptr, delta_y_pt
     
     return cum_tau
 
-def GET_RANDOM_ARRAY(ran_array, nrandom, ran_ctr, init_seed):
-    if ran_ctr < nrandom:
-        ran_number = ran_array[ran_ctr]
-        ran_ctr += 1
-    else:
-        np.random.seed(init_seed)
-        ran_array = np.random.rand(nrandom)
-        ran_ctr = 0
-        ran_number = ran_array[ran_ctr]
-        ran_ctr += 1
-        init_seed = np.random.randint(0, np.iinfo(np.uint32).max)
+# def GET_RANDOM_ARRAY(ran_array, nrandom, ran_ctr, init_seed):
+def GET_RANDOM_ARRAY(): 
+    ran_number = np.random.rand()
+    # if ran_ctr < nrandom:
+    #     ran_number = ran_array[ran_ctr]
+    #     ran_ctr += 1
+    # else:
+    #     # np.random.seed(init_seed)
+    #     ran_array = np.random.rand(nrandom)
+    #     ran_ctr = 0
+    #     ran_number = ran_array[ran_ctr]
+    #     ran_ctr += 1
+        # init_seed = np.random.randint(0, np.iinfo(np.uint32).max)
         # Uncomment the following line to print the seed and ran_number
         # print(init_seed, ran_number)
     

@@ -2,13 +2,16 @@ from astropy.io import fits
 import numpy as np
 import ast
 import time
+import math
 from configparser import ConfigParser
-from view_orbit import get_folder_loc, get_cords_from_ra_dec
+
+
+from Params_configparser import get_folder_loc
 from star_spectrum import *
 from star_data import *
 from dust_scatter import *
 from read_dust_files import *
-from create_csv_files import calc_weigthed_probab, Get_hipstars
+from create_csv_files import calc_weigthed_probab, Get_hipstars, CHECKPOINT
 import csv
 
 # albedo = 0.36
@@ -17,6 +20,7 @@ import csv
 NHIP_STARS = 118218  #Number of stars in Hipparcos catalog
 nrandom = 100
 NA = 100000  # NANGLE
+MIN_INTENS =1e-20
 
 folder_loc = get_folder_loc()
 params_file = f'{folder_loc}init_parameter.txt'
@@ -36,8 +40,9 @@ def read_parameter_file(filename= params_file, param_set = 'Params_1'):
     return min_lim, max_lim
 
 wave_min, wave_max = read_parameter_file()
+dust_par = read_scatter_parameters()
 
-dust_par = read_input_parameters()
+
 # global dust_file, dust_col_file, sigma_file, hipp_file, castelli_file
 VERSION = "May 2024"
 dust_par.version = VERSION  # Assuming VERSION is a predefined constant
@@ -63,55 +68,26 @@ x_new = y_new = z_new = theta = phi = xp = yp = zp = dust_index = tau = nphoton 
 delta_x = delta_y = delta_z = 0
 
 # Set the seed for random number generation
-time1 = 2**30
-time2 = int(time.time())
-init_seed = time2 % time1
-print(time2, time1, init_seed)
+# time1 = 2**30
+# time2 = int(time.time())
+# init_seed = time2 % time1
+# print(time2, time1, init_seed)
 # init_seed = np.random.seed(init_seed)
 # print(init_seed)
 
 # Initialize random array using numpy
-ran_array = np.random.rand(nrandom)
-print(ran_array)
-ran_ctr = nrandom
-print(ran_ctr)
+# ran_array = np.random.rand(nrandom)
+# print(ran_array)
+# ran_ctr = nrandom
+# print(ran_ctr)
 # The dust and energy arrays are continuously built up
 dust_arr = np.zeros((3600, 1800))
 
-# Open and Read Stellar Files
-
-STARS = read_hipparcos_data(hipp_file)
-all_spectra = READ_CASTELLI_SPECTRA(castelli_file) #, mag_threshold=False
-hipstars = []
-star_list = []
-print(STARS[0:3])
+# Read Stellar Files
+hipstars = Get_hipstars()
 print('working1')
-for j in range(len(STARS['hip'])):
-    star = stars()
-    star.hip_no = STARS['hip'].iloc[j]
-    star.mag = STARS['mag'].iloc[j]
-    star.sp_type = STARS['Spectral_type'].iloc[j]
-    star.parallax = STARS['trig_parallax'].iloc[j]
-    star.ra = STARS['ra_deg'].iloc[j]
-    star.dec = STARS['de_deg'].iloc[j]
-    star.ebv = STARS['B-V'].iloc[j]
-    star.temperature= GET_STAR_TEMP(star.sp_type)
-    star.distance= GET_DISTANCE(star.parallax)
-    star.x, star.y, star.z = get_cords_from_ra_dec(star.ra, star.dec, star.distance )
-    data = all_spectra[star.temperature]
-    star.wavelengths = data['wavelength']
-    star.Iflux = data['spectrum']
-    star.scale, star.tot_photons = GET_SCALE_FACTOR(star.mag, star.parallax, star.ebv, star.wavelengths, star.Iflux)
-    # print(star.hip_no, list(zip(star.wavelengths,star.tot_photons)))
-    # star.min_phi = 0
-    # star.max_phi = 0
-    # star.min_theta = 0
-    # star.max_theta = 0
-    star_list.append([j]*len(star.wavelengths))
-    hipstars.append(star)
-del STARS
 NSTARS = len(hipstars)
-# print(hipstars)
+wavelengths_list = hipstars[0].wavelengths
 
 
 # Arrays related to the stars
@@ -140,24 +116,11 @@ z1 = [-dust_par.sun_z * dust_par.dust_binsize, -dust_par.sun_z*dust_par.dust_bin
 print (x1, y1, z1)
 print('working2')
 
-# Initialize variables for min and max coordinates
-min_x = min(x1)
-max_x = max(x1)
-min_y = min(y1)
-max_y = max(y1)
-min_z = min(z1)
-max_z = max(z1)
-
-import math
-
-
-# Calculate theta angle
-for star in hipstars:
-    # Initialize hipstars attributes
-    star.min_phi = 360
-    star.max_phi = 0
+# Calculate theta angle for each star
+def calculate_theta(star, x1, y1,z1):
     star.min_theta = 180
     star.max_theta = 0
+
     for j in range(8):
         theta = (z1[j] -  star.z) / math.sqrt((x1[j] - star.x)**2 + (y1[j] - star.y)**2 + (z1[j] - star.z)**2)
         theta = 90 - math.degrees(math.asin(theta))
@@ -166,6 +129,14 @@ for star in hipstars:
         if theta < star.min_theta:
             star.min_theta = theta
 
+    # Initialize variables for min and max coordinates
+    min_x = min(x1)
+    max_x = max(x1)
+    min_y = min(y1)
+    max_y = max(y1)
+    min_z = min(z1)
+    max_z = max(z1)
+
     # Adjust theta angle based on position
     if min_x < star.x < max_x and min_y < star.y < max_y:
         if star.z > min_z:
@@ -173,14 +144,27 @@ for star in hipstars:
         if star.z < max_z:
             star.min_theta = 0
 
-# Calculate phi angle
+    return
+
+# Calculate phi angle for each star
+def calculate_phi(star, x1, y1, z1):
     phibox = [0] * 8  # Initialize the phibox list
+    star.min_phi = 360
+    star.max_phi = 0
 
     for j in range(8):
         phibox[j] = (x1[j] - star.x)
         ftmp = math.sqrt(pow(x1[j] - star.x, 2) + pow(y1[j] - star.y, 2))
         phibox[j] /= ftmp
         phibox[j] = math.degrees(math.acos(phibox[j]))
+
+    # Initialize variables for min and max coordinates
+    min_x = min(x1)
+    max_x = max(x1)
+    min_y = min(y1)
+    max_y = max(y1)
+    min_z = min(z1)
+    max_z = max(z1)
 
     if (star.x < min_x) and (star.x < max_x) and (star.y < min_y) and (star.y < max_y):
         star.min_phi = phibox[2]
@@ -210,14 +194,18 @@ for star in hipstars:
         star.min_phi = 360 - phibox[1]
         star.max_phi = 360. - phibox[2]
 
+    return 
 
+for star in hipstars:
+    calculate_theta(star, x1, y1,z1)
+    calculate_phi(star, x1, y1,z1)
 
 print('working3')
+
+
 #sorting and weighting star photons data
-try:
-    weighted_list = pd.read_csv(f'diffused_data/Weighted_list@3[{wave_min},{wave_max}].csv')
-except FileNotFoundError:
-    weighted_list = calc_weigthed_probab()
+weighted_list, sorted_stars = calc_weigthed_probab()
+
 
 
 
@@ -236,7 +224,7 @@ while nphoton < dust_par.num_photon:
         init_seed = 1645310043
         fix_rnd = -1
 
-    if (nphoton % 10000000 == 0) and (nphoton > 0):
+    if (nphoton % 100 == 0) and (nphoton > 0):
         phot_log_file.close()
         if dust_par.print_debug == "yes":
             phot_log_file = open("every_photon.log", "a")
@@ -251,14 +239,14 @@ while nphoton < dust_par.num_photon:
 
     random_val = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed) * tot_star
     istar = 0
-    while star_wgt[istar] < random_val and istar < NSTARS:
+    while weighted_list[istar] < random_val and istar < NSTARS:
         istar += 1
 
     istar = star_list[istar]
     star = hipstars[istar]
     starlog[istar] += 1
 
-    tst = FIRST_PHOTON(x_new, y_new, z_new, delta_x, delta_y, delta_z, dust_par, star, angle, dsfmt, ran_array, nrandom, ran_ctr, init_seed)
+    tst = FIRST_PHOTON(x_new, y_new, z_new, delta_x, delta_y, delta_z, dust_par, star, angle,  ran_array, nrandom, ran_ctr, init_seed)
 
     nphoton += 1
     xp = x_new
@@ -279,13 +267,13 @@ while nphoton < dust_par.num_photon:
         y_new = yp
         z_new = zp
 
-        random_val = GET_RANDOM_ARRAY(dsfmt, ran_array, nrandom, ran_ctr, init_seed)
+        random_val = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed)
         if random_val == 1:
             tau = 1e-10
         elif random_val == 0:
             tau = 100000
         else:
-            tau = -log(random_val)
+            tau = -np.log(random_val)
 
         cum_tau = MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x, delta_y, delta_z, sigma, dust_dist, tau)
 
@@ -298,10 +286,10 @@ while nphoton < dust_par.num_photon:
             flux *= intens / dst
             intens -= flux
             extinct = col_density[dust_index] * sigma
-            flux *= exp(-extinct)
+            flux *= np.exp(-extinct)
             cum_flux += flux
             totlog[istar] += flux
-            ltmp = int(sqrt(dst))
+            ltmp = int(np.sqrt(dst))
             distlog[ltmp] += flux
             scatlog[nscatter] += flux
 
@@ -311,9 +299,9 @@ while nphoton < dust_par.num_photon:
             if dust_par.min_gl_debug < ra < dust_par.max_gl_debug and dust_par.min_gb_debug < dec < dust_par.max_gb_debug:
                 phot_log_file.write(f"{star.HIP_NO} {ra} {dec} {xp} {yp} {zp} {x_new} {y_new} {z_new} {extinct} {nscatter} {flux}\n")
 
-            random_val = GET_RANDOM_ARRAY(dsfmt, ran_array, nrandom, ran_ctr, init_seed)
+            random_val = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed)
             theta = CALC_THETA(fscat, random_val)
-            phi = GET_RANDOM_ARRAY(dsfmt, ran_array, nrandom, ran_ctr, init_seed) * TWOPI
+            phi = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed) * 2*np.pi
             xp = x_new
             yp = y_new
             zp = z_new

@@ -562,6 +562,5 @@ int main (int argc, char *argv[])
     free(starlog);
     free(totlog);
     fclose(phot_log_file);
-
 }
 /*End program*/
