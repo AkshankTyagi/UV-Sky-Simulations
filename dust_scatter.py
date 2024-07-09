@@ -188,7 +188,7 @@ def FIRST_PHOTON(dust_par, star, angle):#,  ran_array, nrandom, ran_ctr, init_se
         
         unif_rand = GET_RANDOM_ARRAY()# ran_array, nrandom, ran_ctr, init_seed)
         theta = CALC_THETA(angle, unif_rand)
-        phi = GET_RANDOM_ARRAY()# ran_array, nrandom, ran_ctr, init_seed) * 2 * math.pi
+        phi = GET_RANDOM_ARRAY()* 2 * math.pi# ran_array, nrandom, ran_ctr, init_seed) 
 
         delta_x_ptr, delta_y_ptr, delta_z_ptr = CALC_DELTA_X(theta, phi)
         # print("NEW_PHOTON working", iter)

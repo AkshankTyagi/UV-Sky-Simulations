@@ -75,17 +75,17 @@ def get_world_coordinates(x, y, fits_file):
 
 def plot_diffused_bg(data, wavelength):
 
-    data= data/8000
+    data = data/3300
 
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
     cmap_name = 'black_to_blue'
     BtoB_cmap = mc.LinearSegmentedColormap.from_list(cmap_name, colors)
     # print(wavelength)
-    plt.imshow(data, cmap= BtoB_cmap, vmin=0, vmax= 1)
-    # plt.colorbar()
+    plt.imshow(data, cmap= BtoB_cmap, vmin = 0, vmax= 1)
+    plt.colorbar()
     plt.title(f'diffused_UV_background{wavelength}')
-    # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_11000000_1105.png')
-    plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\diffused_bg_1100.png')
+    plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1000000_1105.png')
+    # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\diffused_bg_1100.png')
     
     plt.show()
 
@@ -97,8 +97,8 @@ def plot_diffused_bg(data, wavelength):
 # print ('working')
 for x in [1100]:
     # fits_filename = f"{folder_loc}diffused_UV_data\scattered_1e10_{x}_a40_g6\scattered.fits"
-    fits_filename = r"C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1e10_1100_a40_g6\scattered.fits"
-    # fits_filename = fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_11000000[(1100, 1110)]_mag20.fits'
+    # fits_filename = r"C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1e10_1100_a40_g6\scattered.fits"
+    fits_filename = fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1000000[(1100, 1110)]_mag20.fits'
     ra, dec = get_world_coordinates( 1800, 900, fits_filename)
     print(f"ra,dec:",ra,dec)
     with fits.open(fits_filename) as hdul:

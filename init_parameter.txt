@@ -22,7 +22,7 @@ longitudinal_spectral_width = 0.8
 interval_bw_frames = 2000
 
 [Scatter_params]
-no_photons = 1000
+no_photons = 10000000
 wavelength = [1105]
 no_scatter = 5
 albedo = 0.4

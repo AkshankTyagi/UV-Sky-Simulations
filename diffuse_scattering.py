@@ -55,7 +55,7 @@ dust_dist = dust_read(dust_par, dust_file)  # Read dust file
 col_density = dust_read(dust_par, dust_col_file)  # File containing column densities
 # print('col_density\n',col_density[0])
 sigma = read_cross_sec(sigma_file, dust_par)
-# print(f"sigma \n{sigma}")
+print(f"sigma \n{sigma}")
 wcs = read_wcs_parameters()
 print(f"dust_par.dust_xsize:{dust_par.dust_xsize}, dust_par.dust_ysize:{dust_par.dust_ysize}, dust_par.dust_zsize:{dust_par.dust_zsize}\ndust_par.dust_binsize :{dust_par.dust_binsize }")
 
@@ -247,7 +247,7 @@ for i, w in enumerate(wavelengths_list):
     # phot_log_file = open("every_photon.log", "w")
     # fix_rnd = 0
     tot_star = weighted_list.iloc[int(i)][-1]
-    print(f'{i+1}) wavelength={w}, N_stars = {NSTARS}, tot_star:{tot_star}')
+    print(f'---{i+1}--- wavelength={w}, N_stars = {NSTARS}, tot_star:{tot_star}')
 
     # The dust and energy arrays are continuously built up
     dust_arr = np.zeros(( 1800, 3600))
@@ -279,12 +279,12 @@ for i, w in enumerate(wavelengths_list):
 
 
         NEW_PHOTON = True
-        random_val = GET_RANDOM_ARRAY() * tot_star
+        random_value = GET_RANDOM_ARRAY() * tot_star
         # istar = 1
         # while weighted_list.iloc[i][istar] < random_val and istar < NSTARS:
         #     istar += 1
         # lstar = int(sorted_stars.iloc[i][istar])
-        istar = np.searchsorted(weighted_list_i[1:NSTARS+1], random_val) + 1
+        istar = np.searchsorted(weighted_list_i[1:NSTARS+1], random_value) + 1
         lstar = int(sorted_stars_i[istar])
         star = hipstars.loc[lstar]
 
@@ -311,6 +311,7 @@ for i, w in enumerate(wavelengths_list):
             continue
         else:
             nphoton += 1
+        # print(f"{nphoton}, istar:{istar}, hip:{star['hip_no']}, tst:{tst}")#,   random_val:{random_val}, check value:{weighted_list.iloc[i][istar]}
 
         # print(f"tst:{tst}, intens:{intens}, nscatter:{nscatter}")
         while intens >= MIN_INTENS and nscatter <= dust_par.nscatter:
@@ -320,12 +321,12 @@ for i, w in enumerate(wavelengths_list):
             z_new = zp
 
             random_val = GET_RANDOM_ARRAY( )#ran_array, nrandom, ran_ctr, init_seed)
-            if random_val == 1:
-                tau = 1e-10
-            elif random_val == 0:
-                tau = 100000
-            else:
-                tau = -np.log(random_val)
+            # if random_val == 1:
+            #     tau = 1e-10
+            # elif random_val == 0:
+            #     tau = 100000
+            # else:
+            tau = -np.log(random_val)
 
             cum_tau = MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x, delta_y, delta_z, sigma, dust_dist, tau)
 
@@ -335,12 +336,15 @@ for i, w in enumerate(wavelengths_list):
                 intens *= dust_par.albedo
                 # print(x_new, y_new, z_new, delta_x, delta_y, delta_z)
                 flux = DETECT(x_new, y_new, z_new, delta_x, delta_y, delta_z, dust_par)
+                # print(f"flux1: {flux}")
                 dst = CALC_DIST(x_new, y_new, z_new, dust_par.sun_x, dust_par.sun_y, dust_par.sun_z)
                 dst *= dust_par.dust_binsize**2
                 flux *= intens / dst
+                # print(f"flux2: {flux}, factor:{intens / dst}")
                 intens -= flux
                 extinct = col_density[dust_index[0], dust_index[1], dust_index[2]] * sigma[0]
                 flux *= np.exp(-extinct)
+                # print(f"flux3: {flux}, factor:{np.exp(-extinct)}")
                 cum_flux += flux 
                 # totlog[i][lstar] += flux
                 ltmp = int(np.sqrt(dst))
@@ -348,7 +352,8 @@ for i, w in enumerate(wavelengths_list):
                 # scatlog[i][nscatter] += flux
 
                 ra, dec = conv_cart_to_eq(x_new, y_new, z_new, dust_par)
-                print(f'{nphoton}) ra: {ra}, dec: {dec}, flux: {flux};  extinct:{extinct}, dist:{ltmp}')
+                # print(f'{nphoton}) istar:{istar}, rand_val:{random_value:.5f}, checkval:{weighted_list.iloc[i][istar]:.5f}, ra: {ra:.3f}, dec: {dec:.3f}, flux: {flux}')#;  extinct:{extinct:.3f}, dist:{ltmp}')
+                # print(f"")#,   random_val:{random_val}, check value:{weighted_list.iloc[i][istar]}
                 dust_arr = write_to_grid(wcs, ra, dec, flux, dust_arr)
 
                 # dust_arr2 = write_to_gridgg(wcs, ra, dec, flux, dust_arr2)
