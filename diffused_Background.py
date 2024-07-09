@@ -77,7 +77,8 @@ def get_world_coordinates(x, y, fits_file):
 
 def plot_diffused_bg(data, wavelength, nphoton):
 
-    data= data/2000
+    data= data/500
+
     n = np.random.rand()
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
     cmap_name = 'black_to_blue'
@@ -109,11 +110,9 @@ for x in [1100]:
     print(f"ra,dec:",ra,dec)
     with fits.open(fits_filename) as hdul:
         data = hdul[0].data
-        # for row in data:
-        #     print (row)
-        df = pd.DataFrame(data)
-        print(df)
-        df.to_csv(f'my_scatter_output{nphoton}.csv', index=False)
+        # df = pd.DataFrame(data)
+        # print(df)
+        # df.to_csv(f'my_scatter_output{nphoton}.csv', index=False)
         plot_diffused_bg(data, 1105, nphoton)
 
 

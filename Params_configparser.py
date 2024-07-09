@@ -53,7 +53,7 @@ config['Params_1'] = {
 }
 config['Scatter_params'] = {
     # Dust Scatter Parameters
-    "No_Photons":  5000000, 
+    "No_Photons":  1000000, 
     'wavelength': [1105],
     'No_scatter': 5,
     'Albedo': 0.40, #0.36
@@ -71,7 +71,7 @@ config['WCS'] = {
     'CRPIX1':1800,
     'CRPIX2':900,
     'CDELT1':-.1,
-    'CDELT2':.1,
+    'CDELT2':-.1,
     'CROTA':0,
     'CTYPE': '-AIT',
     'NAXIS1':3600,

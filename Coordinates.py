@@ -109,19 +109,18 @@ def get_world_coordinates(x, y, fits_file):
 
 def plot_diffused_bg(data, wavelength, nphoton):
 
-    data= data /20000
+    data= data/2000
     n = np.random.rand()
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
     cmap_name = 'black_to_blue'
     BtoB_cmap = mc.LinearSegmentedColormap.from_list(cmap_name, colors)
     # print(wavelength)
-    plt.imshow(data, cmap= BtoB_cmap)#, vmin=0, vmax= 2)
-    plt.colorbar()
+    plt.imshow(data, cmap= BtoB_cmap, vmin=0, vmax= 2)
+    # plt.colorbar()
     plt.title(f'diffused_UV_background@{wavelength} for {nphoton}')
     # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_11000000_{wavelength}.jpg')
-    plt.savefig(fr'{folder_loc}diffused_data{os.sep}trialN{nphoton}_{wavelength}.jpg')
+    plt.savefig(fr'{folder_loc}diffused_data{os.sep}trialN{int(nphoton)}_{int(wavelength)}.jpg')
     
-
     plt.show(block=False)  # Show the plot non-blocking
-    plt.pause(2)           # Pause for 2 seconds
+    plt.pause(20)           # Pause for 2 seconds
     plt.close()            

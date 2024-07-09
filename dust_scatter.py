@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy.io import fits
-
+from numba import njit
 
 # from dust_extinction.grain_models import D03
 
@@ -44,36 +44,62 @@ def SETUP_SCATTER( g):
 
     return fscat
 
-def CALC_THETA(angle, random):
-    # NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
-    max_i = NANGLE
-    min_i = 0
-    i = 0
-    index = 0.0
-    theta = 0.0
+# def CALC_THETA(angle, random):
+#     # NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
+#     max_i = NANGLE
+#     min_i = 0
+#     i = 0
+#     index = 0.0
+#     theta = 0.0
 
-    # Binary Search
-    while max_i - min_i > 3:
-        i = min_i + (max_i - min_i) // 2
-        while angle[i] < random and max_i - i > 1:
-            min_i = i
-            i += (max_i - i) // 2
-        if angle[i] > random:
-            max_i = i
-        while angle[i] > random and i - min_i > 1:
-            max_i = i
-            i -= (i - min_i) // 2
-        if angle[i] < random:
-            min_i = i
+#     # Binary Search
+#     while max_i - min_i > 3:
+#         i = min_i + (max_i - min_i) // 2
+#         while angle[i] < random and max_i - i > 1:
+#             min_i = i
+#             i += (max_i - i) // 2
+#         if angle[i] > random:
+#             max_i = i
+#         while angle[i] > random and i - min_i > 1:
+#             max_i = i
+#             i -= (i - min_i) // 2
+#         if angle[i] < random:
+#             min_i = i
     
+#     i = min_i
+#     while angle[i] < random and i < NANGLE:
+#         i += 1  # Theta selection
+
+#     if i == 0:
+#         index = 0.0
+#     else:
+#         index = float(i - 1) + (angle[i] - random) / (angle[i] - angle[i - 1])
+
+#     theta = index / float(NANGLE) * math.pi  # Theta will be between 0 and PI in radians
+#     return theta
+
+@njit
+def CALC_THETA(angle, random):
+    NANGLE = len(angle)
+    
+    # Binary Search
+    min_i = 0
+    max_i = NANGLE
+    while max_i - min_i > 1:
+        mid_i = (min_i + max_i) // 2
+        if angle[mid_i] < random:
+            min_i = mid_i
+        else:
+            max_i = mid_i
+
     i = min_i
-    while angle[i] < random and i < NANGLE:
-        i += 1  # Theta selection
+    while i < NANGLE and angle[i] < random:
+        i += 1
 
     if i == 0:
         index = 0.0
     else:
-        index = float(i - 1) + (angle[i] - random) / (angle[i] - angle[i - 1])
+        index = float(i - 1) + (random - angle[i - 1]) / (angle[i] - angle[i - 1])
 
     theta = index / float(NANGLE) * math.pi  # Theta will be between 0 and PI in radians
     return theta
@@ -122,22 +148,19 @@ def CHECK_LIMITS(x, y, z, dust):
     if 0 < x < (dust.dust_xsize - 1) and \
        0 < y < (dust.dust_ysize - 1) and \
        0 < z < (dust.dust_zsize - 1):
-        # print('True')
         return True
     else:
-        # print('!!!!!!! False !!!!!!!')
-        # print(x,y,z, dust.dust_xsize,dust.dust_ysize,dust.dust_zsize)
         return False
 
 def INCREMENT(x_n, y_n, z_n, delta_x, delta_y, delta_z):
 
-    if x_n[0] > 1e154 or y_n[0] > 1e154 or z_n[0] > 1e154 or delta_y>1e154 or delta_z>1e154 or delta_x>1e154:
-        print("input has problem",x_n, y_n, z_n, delta_x, delta_y, delta_z)
+    # if x_n[0] > 1e154 or y_n[0] > 1e154 or z_n[0] > 1e154 or delta_y>1e154 or delta_z>1e154 or delta_x>1e154:
+    #     print("input has problem",x_n, y_n, z_n, delta_x, delta_y, delta_z)
     x_new = x_n[0] + delta_x
     y_new = y_n[0] + delta_y
     z_new = z_n[0] + delta_z
-    if x_new > 1e154 or y_new > 1e154 or z_new > 1e154:
-        print("whattt!!!, heres the poblem",x_new,y_new,z_new)
+    # if x_new > 1e154 or y_new > 1e154 or z_new > 1e154:
+    #     print("whattt!!!, heres the poblem",x_new,y_new,z_new)
     return x_new, y_new, z_new
 
 def CALC_DELTA_X( theta, phi):
@@ -147,25 +170,21 @@ def CALC_DELTA_X( theta, phi):
 
     return delta_x, delta_y, delta_z
 
-def GET_DUST_INDEX(x_new, y_new, z_new, dust):
+def GET_DUST_INDEX(x_new, y_new, z_new):
     dust_index = [int(x_new + 0.5), int(y_new + 0.5), int(z_new + 0.5)]
     return dust_index
 
+@njit
 def CALC_DIST(a, b, c, x, y, z):
-    dx = np.abs(a - x)
-    dy = np.abs(b - y)
-    dz = np.abs(c - z)
+    # dx = np.abs(a - x)
+    # dy = np.abs(b - y)
+    # dz = np.abs(c - z)
 
     # Ensure values are within a safe range before squaring
-    if dx > 1e154 or dy > 1e154 or dz > 1e154:
-        print(a, b, c, x, y, z)
-        raise ValueError("Values too large to square without overflow")
-        return 1e5  
-    
-    # Sum the squared distances
-    dist = dx**2 + dy**2 + dz**2
 
-    return dist
+    # dist = dx**2 + dy**2 + dz**2
+
+    return (a-x)**2 + (b - y)**2 + (c - z)**2
 
 def FIRST_PHOTON(dust_par, star, angle):#,  ran_array, nrandom, ran_ctr, init_seed):
     NEW_PHOTON = True
@@ -232,31 +251,64 @@ def FIRST_PHOTON(dust_par, star, angle):#,  ran_array, nrandom, ran_ctr, init_se
 
     return x_new, y_new, z_new, delta_x_ptr, delta_y_ptr, delta_z_ptr, iter
 
-def MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x_ptr, delta_y_ptr, delta_z_ptr, sigma, dust_dist, tau):
+# def MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x_ptr, delta_y_ptr, delta_z_ptr, sigma, dust_dist, tau):
 
+#     delta_x = delta_x_ptr
+#     delta_y = delta_y_ptr
+#     delta_z = delta_z_ptr
+#     cum_tau = 0
+#     step_size = 1.0  # We travel around in fractions of a bin
+#     cont = True
+    
+#     while cont:
+#         # print(f'tau:{tau},-- {CHECK_LIMITS(x_new + delta_x, y_new + delta_y, z_new + delta_z, dust_par)}')
+#         while cum_tau <= tau and CHECK_LIMITS(x_new + delta_x, y_new + delta_y, z_new + delta_z, dust_par):
+#             x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], delta_x, delta_y, delta_z)
+#             # print(x_new, y_new, z_new)
+#             dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
+#             # print(f'cum_tau= {cum_tau}, dust_val = {dust_dist[dust_index[0], dust_index[1], dust_index[2]]}, sigma:{sigma}, step_size:{step_size} ')
+#             cum_tau += (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
+        
+#         if step_size < 0.1:
+#             cont = False
+        
+#         if cont and CHECK_LIMITS(x_new, y_new, z_new, dust_par):
+#             dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
+#             cum_tau -= (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
+#             x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], -delta_x, -delta_y, -delta_z)
+#             delta_x /= 10.0
+#             delta_y /= 10.0
+#             delta_z /= 10.0 
+        
+#         step_size /= 10.0
+    
+#     return cum_tau
+
+def MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x_ptr, delta_y_ptr, delta_z_ptr, sigma, dust_dist, tau):
     delta_x = delta_x_ptr
     delta_y = delta_y_ptr
     delta_z = delta_z_ptr
     cum_tau = 0
-    step_size = 1.0  # We travel around in fractions of a bin
+    step_size = 1.0
     cont = True
     
     while cont:
-        # print(f'tau:{tau},-- {CHECK_LIMITS(x_new + delta_x, y_new + delta_y, z_new + delta_z, dust_par)}')
         while cum_tau <= tau and CHECK_LIMITS(x_new + delta_x, y_new + delta_y, z_new + delta_z, dust_par):
-            x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], delta_x, delta_y, delta_z)
-            # print(x_new, y_new, z_new)
-            dust_index = GET_DUST_INDEX(x_new, y_new, z_new, dust_par)
-            # print(f'cum_tau= {cum_tau}, dust_val = {dust_dist[dust_index[0], dust_index[1], dust_index[2]]}, sigma:{sigma}, step_size:{step_size} ')
+            x_new += delta_x
+            y_new += delta_y
+            z_new += delta_z
+            dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
             cum_tau += (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
         
         if step_size < 0.1:
             cont = False
         
         if cont and CHECK_LIMITS(x_new, y_new, z_new, dust_par):
-            dust_index = GET_DUST_INDEX(x_new, y_new, z_new, dust_par)
+            dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
             cum_tau -= (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
-            x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], -delta_x, -delta_y, -delta_z)
+            x_new -= delta_x
+            y_new -= delta_y
+            z_new -= delta_z
             delta_x /= 10.0
             delta_y /= 10.0
             delta_z /= 10.0 
@@ -265,12 +317,11 @@ def MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x_ptr, delta_y_ptr, delta_z_p
     
     return cum_tau
 
+
 # def GET_RANDOM_ARRAY(ran_array, nrandom, ran_ctr, init_seed):
 def GET_RANDOM_ARRAY(): 
     ran_number = np.random.rand()
     # ran_number = np.random.uniform(0, 1)
-
-
 
     # if ran_ctr < nrandom:
     #     ran_number = ran_array[ran_ctr]

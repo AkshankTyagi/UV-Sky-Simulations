@@ -177,19 +177,13 @@ def read_cross_sec(sigma_file, dust_par):
 
 
 
-def write_to_grid(wcs_param, ra, dec, flux, grid):
-    wcs = WCS(naxis=2)
-    wcs.wcs.crval = [wcs_param[0], wcs_param[1]]
-    wcs.wcs.crpix = [wcs_param[2], wcs_param[3]]
-    wcs.wcs.cdelt = [wcs_param[4], wcs_param[5]]
-    wcs.wcs.crota = [wcs_param[6], wcs_param[6]]
-    wcs.wcs.ctype = [f"GLON{wcs_param[7]}", f"GLAT{wcs_param[7]}"]
-    wcs.array_shape = [ wcs_param[9], wcs_param[8],]  # shape of the grid
+def write_to_grid(wcs, ra, dec, flux, grid):
+ # shape of the grid
 
     # Perform world to pixel transformation
     gl, gb = conv_eq_to_gal(ra, dec)
     xout, yout = wcs.world_to_pixel_values(gl, gb)
-    # xout2, yout2 = wcs.world_to_pixel_values(ra, dec)
+    # xout, yout = wcs.world_to_pixel_values(ra, dec)
     # print(f"ra:{ra}, dec:{dec}, gl:{gl}, gb:{gb}, xout:{xout}, yout:{yout}, xout2:{xout2}, yout:{yout2}" )
 
     # Check if the pixel coordinates are within the bounds of the grid
@@ -250,12 +244,9 @@ def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, i, wavelengt
 def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, i, wavelengths_list):
     min_wave, max_wave = read_parameter_file()
     filename = f"diffused_data/scattered_{int(inp_par.num_photon)}[{int(min_wave),int(max_wave)}]_mag{int(star_mag_threshold)}.fits"
-    
-    dust_out = np.zeros((wcs_param[9], wcs_param[8]), dtype=np.float32)
-    for j in range(wcs_param[9]):
-        for k in range(wcs_param[8]):
-            dust_out[j, k] = grid[j, k] * tot_star / inp_par.num_photon
-    
+
+    dust_out = np.round(grid * tot_star / inp_par.num_photon, decimals=2)
+
     # dust_out[1500, 500] = 1000
     # plot_diffused_bg(dust_out, wavelengths_list[i])
 

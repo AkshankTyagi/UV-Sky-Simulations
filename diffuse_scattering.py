@@ -3,6 +3,7 @@ import numpy as np
 import ast
 import time
 import math
+from astropy.wcs import WCS
 from configparser import ConfigParser
 
 
@@ -55,8 +56,18 @@ dust_dist = dust_read(dust_par, dust_file)  # Read dust file
 col_density = dust_read(dust_par, dust_col_file)  # File containing column densities
 # print('col_density\n',col_density[0])
 sigma = read_cross_sec(sigma_file, dust_par)
+
+# wcs data
+wcs_param = read_wcs_parameters()
+wcs = WCS(naxis=2)
+wcs.wcs.crval = [wcs_param[0], wcs_param[1]]
+wcs.wcs.crpix = [wcs_param[2], wcs_param[3]]
+wcs.wcs.cdelt = [wcs_param[4], wcs_param[5]]
+wcs.wcs.crota = [wcs_param[6], wcs_param[6]]
+wcs.wcs.ctype = [f"GLON{wcs_param[7]}", f"GLAT{wcs_param[7]}"]
+wcs.array_shape = [ wcs_param[9], wcs_param[8],] 
+
 print(f"sigma \n{sigma}")
-wcs = read_wcs_parameters()
 print(f"dust_par.dust_xsize:{dust_par.dust_xsize}, dust_par.dust_ysize:{dust_par.dust_ysize}, dust_par.dust_zsize:{dust_par.dust_zsize}\ndust_par.dust_binsize :{dust_par.dust_binsize }")
 
 # Probabilities for scattering
@@ -238,10 +249,10 @@ print(f"min_theta={hipstars.loc[0,'min_theta']}, max_theta={hipstars.loc[0,'max_
 ################################################################################################
 
 print('Begining scattering')
-# plot_diffused_bg(dust_arr, 1105)
 
 
-for i, w in enumerate(wavelengths_list):
+# Define the scatter function
+def main(i, w):
     nphoton = 0
     time1 = time.time()
     # phot_log_file = open("every_photon.log", "w")
@@ -262,11 +273,11 @@ for i, w in enumerate(wavelengths_list):
             # init_seed = 1645310043
             # fix_rnd = -1
 
-        if (nphoton % 10000 == 0) and nphoton!= 0: # and (nphoton > 0):
+        if (nphoton % 100000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
             print(f"nphoton: {nphoton}, time for loop: {timez - time1},")
-            if (nphoton % 100000 == 0):
-                CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs, hipstars, i, wavelengths_list)
+            if (nphoton % 1000000 == 0):
+                CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, i, wavelengths_list)
                 plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
             #, starlog, misslog, totlog, distlog, scatlog)
             # plot_diffused_bg(dust_arr*tot_star / nphoton, 1105)
@@ -334,7 +345,7 @@ for i, w in enumerate(wavelengths_list):
 
 
             if CHECK_LIMITS(x_new, y_new, z_new, dust_par) and cum_tau >= tau:
-                dust_index = GET_DUST_INDEX(x_new, y_new, z_new, dust_par)
+                dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
                 intens *= dust_par.albedo
                 # print(x_new, y_new, z_new, delta_x, delta_y, delta_z)
                 flux = DETECT(x_new, y_new, z_new, delta_x, delta_y, delta_z, dust_par)
@@ -376,8 +387,8 @@ for i, w in enumerate(wavelengths_list):
                 intens = 0
     time2 = time.time()
     print("Time taken for this wavelength:", time2 - time1)
-    CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs, hipstars,i, wavelengths_list)#, starlog, misslog, totlog, distlog, scatlog)
-    plot_diffused_bg(dust_arr , w, dust_par.num_photon)
+    CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars,i, wavelengths_list)#, starlog, misslog, totlog, distlog, scatlog)
+    plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
     # plot_diffused_bg(dust_arr2*tot_star / nphoton, 110500)
     # print(dust_arr)
 
@@ -396,5 +407,38 @@ for i, w in enumerate(wavelengths_list):
     # starlog = None
     # totlog = None
     # phot_log_file.close()
+
+import cProfile
+import pstats
+import io
+
+# main
+if __name__ == '__main__':
+    for i, w in enumerate(wavelengths_list):
+        main(i, w)
+    
+    # pr = cProfile.Profile()
+    
+    # # Enable profiling
+    # pr.enable()
+    
+    # # Run the main function
+    # main(0,1105)
+    
+    # # Disable profiling
+    # pr.disable()
+    
+    # # Create a StringIO object to store the profiling results
+    # s = io.StringIO()
+    
+    # # Create a Stats object
+    # sortby = 'cumulative'
+    # ps = pstats.Stats(pr, stream=s).strip_dirs().sort_stats(sortby)
+    # # Strip directories and print the stats
+    # # ps.strip_dirs().print_stats('diffuse_scattering.py', 'dust_scatter.py', 'coordinates.py')
+    # # ps.strip_dirs().print_stats('dust_scatter.py')
+    # # print(s.getvalue())
+    # ps.strip_dirs().print_stats('dust_scatter.py')
+    # print(s.getvalue())
 
 
