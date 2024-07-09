@@ -1,10 +1,10 @@
 [Params_1]
-hipparcos_catalogue = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\hip_main.dat
-castelli_data = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\Castelli\ckp00
-dust_file = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\green_dust_60\green_filled_3d.fits
-dust_col_file = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\green_dust_60_col\green_filled_cum_3d.fits
-sigma_file = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\kext_albedo_WD_MW_3.1_60_D03.all.txt
-exclude_stars = C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\exclude_stars_final.txt
+hipparcos_catalogue = /home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup/hip_main.dat
+castelli_data = /home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup/Castelli/ckp00
+dust_file = /home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup/green_dust_60/green_filled_3d.fits
+dust_col_file = /home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup/green_dust_60_col/green_filled_cum_3d.fits
+sigma_file = /home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup/kext_albedo_WD_MW_3.1_60_D03.all.txt
+exclude_stars = /home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup/exclude_stars_final.txt
 sat_name = Astrosat
 roll = False
 roll_rate_hrs = False
@@ -22,7 +22,7 @@ longitudinal_spectral_width = 0.8
 interval_bw_frames = 2000
 
 [Scatter_params]
-no_photons = 10000000
+no_photons = 5000000
 wavelength = [1105]
 no_scatter = 5
 albedo = 0.4

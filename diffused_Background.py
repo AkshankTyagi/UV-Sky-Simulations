@@ -4,11 +4,13 @@ from configparser import ConfigParser
 from astropy.io import fits
 from astropy.wcs import WCS
 import csv
+import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import matplotlib.colors as mc
 
 from Params_configparser import get_folder_loc
+# from Coordinates import *
 
 # def DEGRAD(deg):
 #     return math.radians(deg)
@@ -16,8 +18,8 @@ from Params_configparser import get_folder_loc
 # def RADDEG(rad):
 #     return math.degrees(rad)
 
-folder_loc = get_folder_loc()
-params_file = f'{folder_loc}init_parameter.txt'
+folder_loc , params_file = get_folder_loc()
+# params_file = f'{folder_loc}init_parameter.txt'
 
 
 def read_parameter_file(filename= params_file, param_set = 'Params_1'):
@@ -73,21 +75,24 @@ def get_world_coordinates(x, y, fits_file):
         # print(ra,dec)
         return ra, dec
 
-def plot_diffused_bg(data, wavelength):
+def plot_diffused_bg(data, wavelength, nphoton):
 
-    data = data/3300
-
+    data= data/2000
+    n = np.random.rand()
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
     cmap_name = 'black_to_blue'
     BtoB_cmap = mc.LinearSegmentedColormap.from_list(cmap_name, colors)
     # print(wavelength)
-    plt.imshow(data, cmap= BtoB_cmap, vmin = 0, vmax= 1)
-    plt.colorbar()
-    plt.title(f'diffused_UV_background{wavelength}')
-    plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1000000_1105.png')
-    # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\diffused_bg_1100.png')
+    plt.imshow(data, cmap= BtoB_cmap, vmin=0, vmax= 1)
+    # plt.colorbar()
+    plt.title(f'diffused_UV_background@{wavelength} for {nphoton}')
+    # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_11000000_{wavelength}.jpg')
+    plt.savefig(fr'{folder_loc}diffused_data{os.sep}trialN{nphoton}_{wavelength}.jpg')
     
-    plt.show()
+
+    plt.show(block=False)  # Show the plot non-blocking
+    plt.pause(115)           # Pause for 2 seconds
+    plt.close() 
 
 
 # Example usage
@@ -96,16 +101,21 @@ def plot_diffused_bg(data, wavelength):
 
 # print ('working')
 for x in [1100]:
+    nphoton = 100000000
     # fits_filename = f"{folder_loc}diffused_UV_data\scattered_1e10_{x}_a40_g6\scattered.fits"
     # fits_filename = r"C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1e10_1100_a40_g6\scattered.fits"
-    fits_filename = fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1000000[(1100, 1110)]_mag20.fits'
+    fits_filename = fr'{folder_loc}diffused_data{os.sep}scattered_{nphoton}[(1100, 1110)]_mag20.fits'
     ra, dec = get_world_coordinates( 1800, 900, fits_filename)
     print(f"ra,dec:",ra,dec)
     with fits.open(fits_filename) as hdul:
         data = hdul[0].data
         # for row in data:
         #     print (row)
-        plot_diffused_bg(data, 1105)
+        df = pd.DataFrame(data)
+        print(df)
+        df.to_csv(f'my_scatter_output{nphoton}.csv', index=False)
+        plot_diffused_bg(data, 1105, nphoton)
+
 
 
 # if os.path.exists(file_path):

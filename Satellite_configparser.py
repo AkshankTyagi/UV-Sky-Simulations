@@ -1,7 +1,7 @@
 from configparser import ConfigParser
 from Params_configparser import get_folder_loc
 
-folder_loc = get_folder_loc()
+folder_loc,_ = get_folder_loc()
 
 config = ConfigParser()
 

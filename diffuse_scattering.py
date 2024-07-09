@@ -23,8 +23,8 @@ nrandom = 100
 NANGLE = 100000  # NANGLE
 MIN_INTENS =1e-20
 
-folder_loc = get_folder_loc()
-params_file = f'{folder_loc}init_parameter.txt'
+folder_loc , params_file = get_folder_loc()
+# params_file = f'{folder_loc}init_parameter.txt'
 
 def read_parameter_file(filename= params_file, param_set = 'Params_1'):
     config = ConfigParser()
@@ -262,11 +262,13 @@ for i, w in enumerate(wavelengths_list):
             # init_seed = 1645310043
             # fix_rnd = -1
 
-        if (nphoton % 100000 == 0) and nphoton!= 0: # and (nphoton > 0):
+        if (nphoton % 10000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
             print(f"nphoton: {nphoton}, time for loop: {timez - time1},")
-            if (nphoton % 1000000 == 0):
-                CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs, hipstars, i, wavelengths_list)#, starlog, misslog, totlog, distlog, scatlog)
+            if (nphoton % 100000 == 0):
+                CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs, hipstars, i, wavelengths_list)
+                plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
+            #, starlog, misslog, totlog, distlog, scatlog)
             # plot_diffused_bg(dust_arr*tot_star / nphoton, 1105)
             # phot_log_file.close()
             # if dust_par.print_debug == "yes":
@@ -375,7 +377,7 @@ for i, w in enumerate(wavelengths_list):
     time2 = time.time()
     print("Time taken for this wavelength:", time2 - time1)
     CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs, hipstars,i, wavelengths_list)#, starlog, misslog, totlog, distlog, scatlog)
-    plot_diffused_bg(dust_arr * tot_star / nphoton, w)
+    plot_diffused_bg(dust_arr , w, dust_par.num_photon)
     # plot_diffused_bg(dust_arr2*tot_star / nphoton, 110500)
     # print(dust_arr)
 

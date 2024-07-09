@@ -14,8 +14,8 @@ from star_spectrum import *
 from star_data import *
 from read_dust_files import *
 
-folder_loc = get_folder_loc()
-params_file = f'{folder_loc}init_parameter.txt'
+folder_loc, params_file = get_folder_loc()
+# params_file = f'{folder_loc}init_parameter.txt'
 
 def read_parameter_file(filename= params_file, param_set = 'Params_1'):
     config = ConfigParser()

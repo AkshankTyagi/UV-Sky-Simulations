@@ -55,8 +55,8 @@ class stars:
         self.min_phi = 0
         self.max_phi = 0
 
-folder_loc = get_folder_loc()
-params_file = f'{folder_loc}init_parameter.txt'
+folder_loc, params_file = get_folder_loc()
+
 
 def pc_to_cm(x):
     return 3.08568024696E+18 * x
@@ -246,41 +246,6 @@ def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, i, wavelengt
         #     logfile.write(f"{hipstars[i].hip_no} {hipstars[i].distance} {hipstars[i].tot_photons} "
         #                   f"{starlog[0][i]} {misslog[0][i]} {distlog[0][i]} {scatlog[0][i]} {totlog[0][i]}\n")
 
-# def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, i):
-#     min_wave,max_wave = read_parameter_file()
-#     filename = f"diffused_data\scattered_{int(inp_par.num_photon)}[{int(min_wave),int(max_wave)}]_mag{int(star_mag_threshold)}.fits"
-#     axes = [wcs_param[8], wcs_param[9]]
-#     dust_out = np.zeros((wcs_param[9], wcs_param[8]), dtype=np.float32)
-
-#     for i in range(wcs_param[8]):
-#         for j in range(wcs_param[9]):
-#             # ipixel = [j, i ]
-#             # print(grid[j,i] * tot_star / nphoton)
-#             # print(grid[ipixel] * tot_star / nphoton)
-#             dust_out[j, i] = grid[j,i] * tot_star / nphoton
-
-#     hdu = fits.PrimaryHDU(dust_out)
-#     hdu.header["CRVAL1"] = wcs_param[0]
-#     hdu.header["CRPIX1"] = wcs_param[2]
-#     hdu.header["CDELT1"] = wcs_param[4]
-#     hdu.header["CROTA1"] = wcs_param[6]
-#     hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
-#     hdu.header["CRVAL2"] = wcs_param[1]
-#     hdu.header["CRPIX2"] = wcs_param[3]
-#     hdu.header["CDELT2"] = wcs_param[5]
-#     hdu.header["CROTA2"] = wcs_param[6]
-#     hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
-#     hdu.header["DATAMIN"] = np.min(dust_out)
-#     hdu.header["DATAMAX"] = np.max(dust_out)
-#     hdu.header["NPHOT"] = nphoton
-#     hdu.header["ALBEDO"] = inp_par.albedo
-#     hdu.header["G"] = inp_par.g
-#     hdu.header["WAVELENG"] = inp_par.wave[0]
-#     # hdu.header["COMMENT"] = f"Dust file: {inp_par.dust_file[:30]}"
-#     # hdu.header["COMMENT"] = inp_par.version
-
-#     hdu.writeto(filename, overwrite=True)
-#     print(f'{filename} updated\n')
 
 def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, i, wavelengths_list):
     min_wave, max_wave = read_parameter_file()

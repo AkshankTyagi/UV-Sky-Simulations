@@ -23,8 +23,8 @@ from star_spectrum import *#,GET_SPECTRA
 
 
 # include the parameter file and sattelite TLE file
-folder_loc = get_folder_loc()
-params_file = f'{folder_loc}init_parameter.txt'
+folder_loc, params_file = get_folder_loc()
+# params_file = f'{folder_loc}init_parameter.txt'
 sat_file = f'{folder_loc}Satellite_TLE.txt'
 # print(params_file)
 

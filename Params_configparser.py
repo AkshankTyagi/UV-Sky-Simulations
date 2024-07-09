@@ -1,13 +1,21 @@
 from configparser import ConfigParser
 import os
 
-# from view_orbit import get_folder_loc
 
 def get_folder_loc():
-    folder_loc = r'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\\'
-    return folder_loc
+    # print(os.getcwd())
+    # folder_loc = fr'/home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup'  
+    folder_loc = fr'/home/akshanktyagi/Documents/GitHUB/UV-Sky-Simulations-Backup' 
+    folder_loc = os.getcwd()
+    if not folder_loc.endswith(os.sep):
+        folder_loc += os.sep
+    params_file = fr'{folder_loc}init_parameter.txt'
 
-folder_loc = get_folder_loc()
+    return folder_loc, params_file 
+
+folder_loc,  params_file = get_folder_loc()
+
+
 config = ConfigParser()
 
 config['Params_1'] = {
@@ -45,7 +53,7 @@ config['Params_1'] = {
 }
 config['Scatter_params'] = {
     # Dust Scatter Parameters
-    "No_Photons":  10000000, 
+    "No_Photons":  5000000, 
     'wavelength': [1105],
     'No_scatter': 5,
     'Albedo': 0.40, #0.36
@@ -70,6 +78,6 @@ config['WCS'] = {
     'NAXIS2':1800
 }
 
-with open(f'{folder_loc}init_parameter.txt',"w") as f:
+with open(params_file,"w") as f:
     config.write(f)
     print(f'{folder_loc}init_parameter.txt Saved')
