@@ -2,7 +2,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 import astropy.units as u
-
+from astropy.io import fits
 
 
 # from dust_extinction.grain_models import D03
@@ -14,8 +14,9 @@ def PHASE_FUNCTION(cangle, g):
     pscat = (1 - g **2) / (4. * math.pi* (pow(1. + g**2 - 2. * g * cangle, 1.5)))
     return pscat
 
-def SETUP_ANGLE(angle): 
-    NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
+def SETUP_ANGLE():
+    angle = np.zeros(NANGLE) 
+    # NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
     angle[0] = 0.0
     for i in range(1, NANGLE):
         theta = float(i) / float(NANGLE) * math.pi
@@ -26,14 +27,10 @@ def SETUP_ANGLE(angle):
     for i in range(1, NANGLE):
         angle[i] /= max_angle
     
-def get_cords_from_ra_dec (ra, dec, distance):
-    x = np.cos(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
-    y = np.sin(np.deg2rad(ra))*np.cos(np.deg2rad(dec))*distance
-    z = np.sin(np.deg2rad(dec))*distance
-    return x, y, z
+    return angle
 
-def SETUP_SCATTER(fscat, g):
-    NANGLE = len(fscat)  # Assuming NANGLE is defined outside the function
+def SETUP_SCATTER( g):
+    fscat = np.zeros(NANGLE)  # Assuming NANGLE is defined outside the function
     fscat[0] = 0.0
     
     for i in range(1, NANGLE):
@@ -45,8 +42,10 @@ def SETUP_SCATTER(fscat, g):
     for i in range(1, NANGLE):
         fscat[i] /= max_fscat
 
+    return fscat
+
 def CALC_THETA(angle, random):
-    NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
+    # NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
     max_i = NANGLE
     min_i = 0
     i = 0
@@ -88,10 +87,11 @@ def DETECT(x1, y1, z1, dx, dy, dz, dust):
     d2 = math.sqrt(x2*x2 + y2*y2 + z2*z2)
 
     # Calculate the angle (cosine)
-    cangle = (dx*x2 + dy*y2 + dz*z2) / d1 / d2
+    cangl = (dx*x2 + dy*y2 + dz*z2) / d1 / d2
+    # print('cangle:', cangl)
 
     # Calculate the phase function
-    pscat = PHASE_FUNCTION(cangle, dust.g)
+    pscat = PHASE_FUNCTION(cangl, dust.g)
     return pscat
 
 def SCATTER(delta_x, delta_y, delta_z, theta, phi):
@@ -122,95 +122,118 @@ def CHECK_LIMITS(x, y, z, dust):
     if 0 < x < (dust.dust_xsize - 1) and \
        0 < y < (dust.dust_ysize - 1) and \
        0 < z < (dust.dust_zsize - 1):
+        # print('True')
         return True
     else:
+        # print('!!!!!!! False !!!!!!!')
+        # print(x,y,z, dust.dust_xsize,dust.dust_ysize,dust.dust_zsize)
         return False
 
-def INCREMENT(x_new, y_new, z_new, delta_x, delta_y, delta_z):
-    x_new[0] += delta_x
-    y_new[0] += delta_y
-    z_new[0] += delta_z
+def INCREMENT(x_n, y_n, z_n, delta_x, delta_y, delta_z):
 
-def CALC_DELTA_X(delta_x, delta_y, delta_z, theta, phi):
-    delta_x[0] = math.cos(phi) * math.sin(theta)
-    delta_y[0] = math.sin(phi) * math.sin(theta)
-    delta_z[0] = math.cos(theta)
+    if x_n[0] > 1e154 or y_n[0] > 1e154 or z_n[0] > 1e154 or delta_y>1e154 or delta_z>1e154 or delta_x>1e154:
+        print("input has problem",x_n, y_n, z_n, delta_x, delta_y, delta_z)
+    x_new = x_n[0] + delta_x
+    y_new = y_n[0] + delta_y
+    z_new = z_n[0] + delta_z
+    if x_new > 1e154 or y_new > 1e154 or z_new > 1e154:
+        print("whattt!!!, heres the poblem",x_new,y_new,z_new)
+    return x_new, y_new, z_new
+
+def CALC_DELTA_X( theta, phi):
+    delta_x = math.cos(phi) * math.sin(theta)
+    delta_y = math.sin(phi) * math.sin(theta)
+    delta_z = math.cos(theta)
+
+    return delta_x, delta_y, delta_z
 
 def GET_DUST_INDEX(x_new, y_new, z_new, dust):
-    dust_index = int(x_new + 0.5) + \
-                 int((y_new + 0.5) * dust.dust_xsize) + \
-                 int((z_new + 0.5) * dust.dust_xsize * dust.dust_ysize)
+    dust_index = [int(x_new + 0.5), int(y_new + 0.5), int(z_new + 0.5)]
     return dust_index
 
 def CALC_DIST(a, b, c, x, y, z):
-    dist = (a - x)**2 + (b - y)**2 + (c - z)**2
+    dx = np.abs(a - x)
+    dy = np.abs(b - y)
+    dz = np.abs(c - z)
+
+    # Ensure values are within a safe range before squaring
+    if dx > 1e154 or dy > 1e154 or dz > 1e154:
+        print(a, b, c, x, y, z)
+        raise ValueError("Values too large to square without overflow")
+        return 1e5  
+    
+    # Sum the squared distances
+    dist = dx**2 + dy**2 + dz**2
+
     return dist
 
-def FIRST_PHOTON(x_new_ptr, y_new_ptr, z_new_ptr,
-                 delta_x_ptr, delta_y_ptr, delta_z_ptr,
-                 dust_par, star, angle,  ran_array, nrandom, ran_ctr, init_seed):
+def FIRST_PHOTON(dust_par, star, angle):#,  ran_array, nrandom, ran_ctr, init_seed):
     NEW_PHOTON = True
     iter = 0
     step_delta = 0
+    # print("NEW_PHOTON started")
     while NEW_PHOTON == True and iter <= dust_par.num_photon:
         iter += 1
-        xp = star.x / dust_par.dust_binsize + dust_par.sun_x
-        yp = star.y / dust_par.dust_binsize + dust_par.sun_y
-        zp = star.z / dust_par.dust_binsize + dust_par.sun_z
+        xp = star['x'] / dust_par.dust_binsize + dust_par.sun_x
+        yp = star['y'] / dust_par.dust_binsize + dust_par.sun_y
+        zp = star['z'] / dust_par.dust_binsize + dust_par.sun_z
         x_new = xp
         y_new = yp
         z_new = zp
-        dp = CALC_DIST(dust_par.sun_x, dust_par.sun_y, dust_par.sun_z, xp, yp, zp)
+        # if x_new > 1e154 or y_new > 1e154 or z_new > 1e154:
+        #     print("1st calc_dist has problem",x_new,y_new,z_new)
+        dp = CALC_DIST(xp, yp, zp, dust_par.sun_x, dust_par.sun_y, dust_par.sun_z)
         d_new = dp
         d_old = dp
-
-        unif_rand = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed)
+        
+        unif_rand = GET_RANDOM_ARRAY()# ran_array, nrandom, ran_ctr, init_seed)
         theta = CALC_THETA(angle, unif_rand)
-        phi = GET_RANDOM_ARRAY( ran_array, nrandom, ran_ctr, init_seed) * 2 * math.pi
+        phi = GET_RANDOM_ARRAY()# ran_array, nrandom, ran_ctr, init_seed) * 2 * math.pi
 
-        CALC_DELTA_X(delta_x_ptr, delta_y_ptr, delta_z_ptr, theta, phi)
+        delta_x_ptr, delta_y_ptr, delta_z_ptr = CALC_DELTA_X(theta, phi)
+        # print("NEW_PHOTON working", iter)
 
         dtheta = math.degrees(theta)
         dphi = math.degrees(phi)
-        if dtheta < star.min_theta or dtheta > star.max_theta or dphi < star.min_phi or dphi > star.max_phi:
-            return -1
+
+        # print(f"dtheta:{dtheta}, dphi:{dphi}, {star['min_theta'], star['max_theta'], star['min_phi'], star['max_phi']}   ")
+        if dtheta < star['min_theta'] or dtheta > star['max_theta'] or dphi < star['min_phi'] or dphi > star['max_phi']:
+            return x_new, y_new, z_new, delta_x_ptr, delta_y_ptr, delta_z_ptr, -1
 
         if not CHECK_LIMITS(x_new, y_new, z_new, dust_par):
             step_delta = 1000
             while step_delta >= 1:
-                while not (CHECK_LIMITS(x_new, y_new, z_new, dust_par) and d_new <= d_old):
-                    delta_x_ptr[0] *= step_delta
-                    delta_y_ptr[0] *= step_delta
-                    delta_z_ptr[0] *= step_delta
-                    INCREMENT([x_new], [y_new], [z_new], delta_x_ptr[0], delta_y_ptr[0], delta_z_ptr[0])
+                while not (CHECK_LIMITS(x_new, y_new, z_new, dust_par)) and d_new <= d_old:
+                    delta_x_ptr *= step_delta
+                    delta_y_ptr *= step_delta
+                    delta_z_ptr *= step_delta
+                    # print(delta_x_ptr, delta_y_ptr, delta_z_ptr) 
+                    x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], delta_x_ptr, delta_y_ptr, delta_z_ptr)
                     d_old = d_new
                     d_new = CALC_DIST(x_new, y_new, z_new, dust_par.sun_x, dust_par.sun_y, dust_par.sun_z)
-
-                INCREMENT([x_new], [y_new], [z_new], -delta_x_ptr[0], -delta_y_ptr[0], -delta_z_ptr[0])
-                dp = math.sqrt(delta_x_ptr[0]**2 + delta_y_ptr[0]**2 + delta_z_ptr[0]**2)
-                delta_x_ptr[0] /= dp
-                delta_y_ptr[0] /= dp
-                delta_z_ptr[0] /= dp
+                
+                x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], -delta_x_ptr, -delta_y_ptr, -delta_z_ptr)
+                
+                dp = math.sqrt(delta_x_ptr**2 + delta_y_ptr**2 + delta_z_ptr**2)
+                delta_x_ptr /= dp
+                delta_y_ptr /= dp
+                delta_z_ptr /= dp
                 d_new = CALC_DIST(x_new, y_new, z_new, dust_par.sun_x, dust_par.sun_y, dust_par.sun_z)
                 d_old = d_new
                 step_delta /= 2
+            
+            x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], delta_x_ptr, delta_y_ptr, delta_z_ptr)
 
-            INCREMENT([x_new], [y_new], [z_new], delta_x_ptr[0], delta_y_ptr[0], delta_z_ptr[0])
 
         if not CHECK_LIMITS(x_new, y_new, z_new, dust_par):
             iter = -1
 
         NEW_PHOTON = False
 
-    x_new_ptr[0] = x_new
-    y_new_ptr[0] = y_new
-    z_new_ptr[0] = z_new
-    return iter
+    return x_new, y_new, z_new, delta_x_ptr, delta_y_ptr, delta_z_ptr, iter
 
-def MATCH_TAU(x_new_ptr, y_new_ptr, z_new_ptr, dust_par, delta_x_ptr, delta_y_ptr, delta_z_ptr, sigma, dust_dist, tau):
-    x_new = x_new_ptr
-    y_new = y_new_ptr
-    z_new = z_new_ptr
+def MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x_ptr, delta_y_ptr, delta_z_ptr, sigma, dust_dist, tau):
+
     delta_x = delta_x_ptr
     delta_y = delta_y_ptr
     delta_z = delta_z_ptr
@@ -219,20 +242,24 @@ def MATCH_TAU(x_new_ptr, y_new_ptr, z_new_ptr, dust_par, delta_x_ptr, delta_y_pt
     cont = True
     
     while cont:
+        # print(f'tau:{tau},-- {CHECK_LIMITS(x_new + delta_x, y_new + delta_y, z_new + delta_z, dust_par)}')
         while cum_tau <= tau and CHECK_LIMITS(x_new + delta_x, y_new + delta_y, z_new + delta_z, dust_par):
-            INCREMENT(x_new_ptr, y_new_ptr, z_new_ptr, delta_x, delta_y, delta_z)
+            x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], delta_x, delta_y, delta_z)
+            # print(x_new, y_new, z_new)
             dust_index = GET_DUST_INDEX(x_new, y_new, z_new, dust_par)
-            cum_tau += dust_dist[dust_index] * sigma * step_size * dust_par.dust_binsize
+            # print(f'cum_tau= {cum_tau}, dust_val = {dust_dist[dust_index[0], dust_index[1], dust_index[2]]}, sigma:{sigma}, step_size:{step_size} ')
+            cum_tau += (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
         
         if step_size < 0.1:
             cont = False
         
         if cont and CHECK_LIMITS(x_new, y_new, z_new, dust_par):
-            cum_tau -= dust_dist[dust_index] * sigma * step_size * dust_par.dust_binsize
-            INCREMENT(x_new_ptr, y_new_ptr, z_new_ptr, -delta_x, -delta_y, -delta_z)
+            dust_index = GET_DUST_INDEX(x_new, y_new, z_new, dust_par)
+            cum_tau -= (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
+            x_new, y_new, z_new = INCREMENT([x_new], [y_new], [z_new], -delta_x, -delta_y, -delta_z)
             delta_x /= 10.0
             delta_y /= 10.0
-            delta_z /= 10.0
+            delta_z /= 10.0 
         
         step_size /= 10.0
     
@@ -241,6 +268,10 @@ def MATCH_TAU(x_new_ptr, y_new_ptr, z_new_ptr, dust_par, delta_x_ptr, delta_y_pt
 # def GET_RANDOM_ARRAY(ran_array, nrandom, ran_ctr, init_seed):
 def GET_RANDOM_ARRAY(): 
     ran_number = np.random.rand()
+    # ran_number = np.random.uniform(0, 1)
+
+
+
     # if ran_ctr < nrandom:
     #     ran_number = ran_array[ran_ctr]
     #     ran_ctr += 1

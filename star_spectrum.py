@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from configparser import ConfigParser
 import math
+import pandas as pd
 from Params_configparser import get_folder_loc
 
 folder_loc = get_folder_loc()
@@ -346,6 +347,7 @@ def GET_SCALE_FACTOR( V_mag, parallax, B_V, waveL_range, stellar_spectra):
             photon_number = stellar_spectra[w] * scale * 4 * math.pi * ERG_TO_PHOT * waveL_range[w]
             if (photon_number <= 1e-10):
                 photon_number = 0
+
             tot_photons.append(photon_number)
 
         # if hipstar['HD_NO'] in [158926, 160578]:
