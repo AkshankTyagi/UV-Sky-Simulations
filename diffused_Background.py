@@ -77,19 +77,21 @@ def get_world_coordinates(x, y, fits_file):
 
 def plot_diffused_bg(data, wavelength, nphoton):
 
-    data= data/500
+    data= data/3000
 
     n = np.random.rand()
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
     cmap_name = 'black_to_blue'
     BtoB_cmap = mc.LinearSegmentedColormap.from_list(cmap_name, colors)
     # print(wavelength)
+
+    plt.figure(figsize=(10, 6))
     plt.imshow(data, cmap= BtoB_cmap, vmin=0, vmax= 1)
+    plt.gca().invert_yaxis()
     # plt.colorbar()
     plt.title(f'diffused_UV_background@{wavelength} for {nphoton}')
-    # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_11000000_{wavelength}.jpg')
-    plt.savefig(fr'{folder_loc}diffused_data{os.sep}trialN{nphoton}_{wavelength}.jpg')
-    
+    # plt.savefig(fr'{folder_loc}diffused_data{os.sep}diffused_UV_BG_{wavelength}.jpg', dpi=300)
+    plt.savefig(fr'{folder_loc}diffused_data{os.sep}trial1000N{nphoton}_{wavelength}.jpg', dpi=300)
 
     plt.show(block=False)  # Show the plot non-blocking
     plt.pause(115)           # Pause for 2 seconds
@@ -102,8 +104,8 @@ def plot_diffused_bg(data, wavelength, nphoton):
 
 # print ('working')
 for x in [1100]:
-    nphoton = 100000000
-    # fits_filename = f"{folder_loc}diffused_UV_data\scattered_1e10_{x}_a40_g6\scattered.fits"
+    nphoton = 000000
+    # fits_filename = f"{folder_loc}diffused_data{os.sep}scattered_1e10_{x}_a40_g6{os.sep}scattered.fits"
     # fits_filename = r"C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1e10_1100_a40_g6\scattered.fits"
     fits_filename = fr'{folder_loc}diffused_data{os.sep}scattered_{nphoton}[(1100, 1110)]_mag20.fits'
     ra, dec = get_world_coordinates( 1800, 900, fits_filename)
@@ -113,7 +115,7 @@ for x in [1100]:
         # df = pd.DataFrame(data)
         # print(df)
         # df.to_csv(f'my_scatter_output{nphoton}.csv', index=False)
-        plot_diffused_bg(data, 1105, nphoton)
+        plot_diffused_bg(data, 1100, nphoton)
 
 
 
