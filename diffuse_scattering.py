@@ -4,6 +4,10 @@ import ast
 import time
 import math
 from astropy.wcs import WCS
+import cProfile
+import pstats
+import io
+import multiprocessing as mp
 from configparser import ConfigParser
 
 
@@ -250,9 +254,9 @@ print(f"min_theta={hipstars.loc[0,'min_theta']}, max_theta={hipstars.loc[0,'max_
 
 print('Begining scattering')
 
-
 # Define the scatter function
-def main(i, w):
+def scattered_light(data):
+    i, w = data
     nphoton = 0
     time1 = time.time()
     # phot_log_file = open("every_photon.log", "w")
@@ -273,11 +277,11 @@ def main(i, w):
             # init_seed = 1645310043
             # fix_rnd = -1
 
-        if (nphoton % 100000 == 0) and nphoton!= 0: # and (nphoton > 0):
+        if (nphoton % 10000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
             print(f"nphoton: {nphoton}, time for loop: {timez - time1},")
             if (nphoton % 1000000 == 0):
-                CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, i, wavelengths_list)
+                CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)
                 plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
             #, starlog, misslog, totlog, distlog, scatlog)
             # plot_diffused_bg(dust_arr*tot_star / nphoton, 1105)
@@ -386,9 +390,9 @@ def main(i, w):
             else:
                 intens = 0
     time2 = time.time()
-    print("Time taken for this wavelength:", time2 - time1)
-    CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars,i, wavelengths_list)#, starlog, misslog, totlog, distlog, scatlog)
-    plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
+    print("Time taken for this wavelength_process:", time2 - time1)
+    CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)#, starlog, misslog, totlog, distlog, scatlog)
+    plot_diffused_bg(dust_arr*tot_star/nphoton, w, dust_par.num_photon)
     # plot_diffused_bg(dust_arr2*tot_star / nphoton, 110500)
     # print(dust_arr)
 
@@ -405,17 +409,37 @@ def main(i, w):
     # sorted_stars = None
     # misslog = None
     # starlog = None
-    # totlog = None
+    # totlog = None 
     # phot_log_file.close()
 
-import cProfile
-import pstats
-import io
+    # return dust_arr * tot_star / dust_par.num_photon
+
+
 
 # main
 if __name__ == '__main__':
-    for i, w in enumerate(wavelengths_list):
-        main(i, w)
+    scatter_wavelengths = []
+    for w in dust_par.wave:
+        i = wavelengths_list.index(w)
+        scatter_wavelengths.append([i,w])
+
+
+    NProcessor = 2
+    start_time = time.time()
+
+    if len(scatter_wavelengths) < NProcessor:
+        NProcessor = len(scatter_wavelengths)
+
+    print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
+
+    with mp.Pool(processes = NProcessor) as pool:
+        # print("working!!!!!!")
+    # Use the pool to apply the function to each pair in the input list
+        pool.map(scattered_light, scatter_wavelengths )
+        # print("working2!!!!!!")
+
+    print(f"time taken: {time.time() - start_time}")
+
     
     # pr = cProfile.Profile()
     

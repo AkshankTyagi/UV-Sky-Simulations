@@ -122,5 +122,5 @@ def plot_diffused_bg(data, wavelength, nphoton):
     plt.savefig(fr'{folder_loc}diffused_data{os.sep}trialN{int(nphoton)}_{int(wavelength)}.jpg')
     
     plt.show(block=False)  # Show the plot non-blocking
-    plt.pause(2)           # Pause for 2 seconds
+    plt.pause(20)           # Pause for 2 seconds
     plt.close()            

@@ -53,7 +53,7 @@ config['Params_1'] = {
 }
 config['Scatter_params'] = {
     # Dust Scatter Parameters
-    "No_Photons":  1000000, 
+    "No_Photons":  100000, 
     'wavelength': [1105],
     'No_scatter': 5,
     'Albedo': 0.40, #0.36

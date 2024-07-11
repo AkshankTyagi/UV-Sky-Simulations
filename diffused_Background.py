@@ -104,17 +104,17 @@ def plot_diffused_bg(data, wavelength, nphoton):
 
 # print ('working')
 for x in [1100]:
-    nphoton = 000000
+    nphoton = 100000
     # fits_filename = f"{folder_loc}diffused_data{os.sep}scattered_1e10_{x}_a40_g6{os.sep}scattered.fits"
     # fits_filename = r"C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1e10_1100_a40_g6\scattered.fits"
-    fits_filename = fr'{folder_loc}diffused_data{os.sep}scattered_{nphoton}[(1100, 1110)]_mag20.fits'
+    fits_filename = fr'{folder_loc}diffused_output{os.sep}scattered_{nphoton}[(1100, 1110)]_mag20.fits'
     ra, dec = get_world_coordinates( 1800, 900, fits_filename)
     print(f"ra,dec:",ra,dec)
     with fits.open(fits_filename) as hdul:
         data = hdul[0].data
-        # df = pd.DataFrame(data)
-        # print(df)
-        # df.to_csv(f'my_scatter_output{nphoton}.csv', index=False)
+        df = pd.DataFrame(data)
+        print(df)
+        df.to_csv(f'my_scatter_output{nphoton}.csv', header = False, index=False)
         plot_diffused_bg(data, 1100, nphoton)
 
 

@@ -224,15 +224,15 @@ def write_to_grid(wcs, ra, dec, flux, grid):
 
 #     return grid2
 
-def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, i, wavelengths_list):#, starlog, misslog, totlog, distlog, scatlog):
+def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, wavelength):#, starlog, misslog, totlog, distlog, scatlog):
     # Time related
     current_time = time.time()
-    print(f"Checkpoint of {nphoton} photons at {current_time}")
+    print(f"Checkpoint of {nphoton} for {wavelength} photons at {current_time}")
 
     # Add to cumulative grids. Scale by the number of photons from the star over
     # the number of photons in the simulation. Write them out to FITS files.
 
-    write_fits_file(wcs, dust_arr, nphoton, tot_star, inp_par, i, wavelengths_list)
+    write_fits_file(wcs, dust_arr, nphoton, tot_star, inp_par, wavelength)
 
     # with open("datalogger.txt", "w") as logfile:
         # logfile.write("HIP_NO Dist.  Star_flux Star_phot Miss_phot Dist_sca scat_flux tot_flux\n")
@@ -241,63 +241,64 @@ def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, i, wavelengt
         #                   f"{starlog[0][i]} {misslog[0][i]} {distlog[0][i]} {scatlog[0][i]} {totlog[0][i]}\n")
 
 
-def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, i, wavelengths_list):
+def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, wavelength):#i, wavelengths_list):
     min_wave, max_wave = read_parameter_file()
-    filename = f"diffused_data/scattered_{int(inp_par.num_photon)}[{int(min_wave),int(max_wave)}]_mag{int(star_mag_threshold)}.fits"
+    filename = f"diffused_output{os.sep}scattered_{int(inp_par.num_photon)}[{int(wavelength)}]_mag{int(star_mag_threshold)}.fits"
 
-    dust_out = np.round(grid * tot_star / inp_par.num_photon, decimals=2)
+    dust_out = (np.round(grid * tot_star / inp_par.num_photon, decimals=3)).astype(np.float32)
+    # dust_out = (grid * tot_star / inp_par.num_photon).astype(np.int32)
 
     # dust_out[1500, 500] = 1000
     # plot_diffused_bg(dust_out, wavelengths_list[i])
 
     # Create or open the FITS file
-    if i == 0:
+    # if i == 0:
         # Create a new FITS file with the primary HDU
-        primary_hdu = fits.PrimaryHDU(dust_out)
-        primary_hdu.header["CRVAL1"] = wcs_param[0]
-        primary_hdu.header["CRPIX1"] = wcs_param[2]
-        primary_hdu.header["CDELT1"] = wcs_param[4]
-        primary_hdu.header["CROTA1"] = wcs_param[6]
-        primary_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
-        primary_hdu.header["CRVAL2"] = wcs_param[1]
-        primary_hdu.header["CRPIX2"] = wcs_param[3]
-        primary_hdu.header["CDELT2"] = wcs_param[5]
-        primary_hdu.header["CROTA2"] = wcs_param[6]
-        primary_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
-        primary_hdu.header["DATAMIN"] = np.min(dust_out)
-        primary_hdu.header["DATAMAX"] = np.max(dust_out)
-        primary_hdu.header["NPHOT"] = inp_par.num_photon
-        primary_hdu.header["ALBEDO"] = inp_par.albedo
-        primary_hdu.header["G"] = inp_par.g
-        primary_hdu.header["WAVELENG"] = wavelengths_list[i]
-        
-        hdulist = fits.HDUList([primary_hdu])
-        hdulist.writeto(filename, overwrite=True)
+    primary_hdu = fits.PrimaryHDU(dust_out)
+    primary_hdu.header["CRVAL1"] = wcs_param[0]
+    primary_hdu.header["CRPIX1"] = wcs_param[2]
+    primary_hdu.header["CDELT1"] = wcs_param[4]
+    primary_hdu.header["CROTA1"] = wcs_param[6]
+    primary_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
+    primary_hdu.header["CRVAL2"] = wcs_param[1]
+    primary_hdu.header["CRPIX2"] = wcs_param[3]
+    primary_hdu.header["CDELT2"] = wcs_param[5]
+    primary_hdu.header["CROTA2"] = wcs_param[6]
+    primary_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
+    primary_hdu.header["DATAMIN"] = np.min(dust_out)
+    primary_hdu.header["DATAMAX"] = np.max(dust_out)
+    primary_hdu.header["NPHOT"] = inp_par.num_photon
+    primary_hdu.header["ALBEDO"] = inp_par.albedo
+    primary_hdu.header["G"] = inp_par.g
+    primary_hdu.header["WAVELENG"] = wavelength
+    
+    hdulist = fits.HDUList([primary_hdu])
+    hdulist.writeto(filename, overwrite=True)
 
-    else:
-        # Open the existing FITS file
-        with fits.open(filename, mode='update' ) as hdulist:
+    # else:
+    #     # Open the existing FITS file
+    #     with fits.open(filename, mode='update' ) as hdulist:
 
-            image_hdu = fits.ImageHDU(dust_out)
-            image_hdu.header["CRVAL1"] = wcs_param[0]
-            image_hdu.header["CRPIX1"] = wcs_param[2]
-            image_hdu.header["CDELT1"] = wcs_param[4]
-            image_hdu.header["CROTA1"] = wcs_param[6]
-            image_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
-            image_hdu.header["CRVAL2"] = wcs_param[1]
-            image_hdu.header["CRPIX2"] = wcs_param[3]
-            image_hdu.header["CDELT2"] = wcs_param[5]
-            image_hdu.header["CROTA2"] = wcs_param[6]
-            image_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
-            image_hdu.header["DATAMIN"] = np.min(dust_out)
-            image_hdu.header["DATAMAX"] = np.max(dust_out)
-            image_hdu.header["NPHOT"] = inp_par.num_photon
-            image_hdu.header["ALBEDO"] = inp_par.albedo
-            image_hdu.header["G"] = inp_par.g
-            image_hdu.header["WAVELENG"] = wavelengths_list[i]
+    #         image_hdu = fits.ImageHDU(dust_out)
+    #         image_hdu.header["CRVAL1"] = wcs_param[0]
+    #         image_hdu.header["CRPIX1"] = wcs_param[2]
+    #         image_hdu.header["CDELT1"] = wcs_param[4]
+    #         image_hdu.header["CROTA1"] = wcs_param[6]
+    #         image_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
+    #         image_hdu.header["CRVAL2"] = wcs_param[1]
+    #         image_hdu.header["CRPIX2"] = wcs_param[3]
+    #         image_hdu.header["CDELT2"] = wcs_param[5]
+    #         image_hdu.header["CROTA2"] = wcs_param[6]
+    #         image_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
+    #         image_hdu.header["DATAMIN"] = np.min(dust_out)
+    #         image_hdu.header["DATAMAX"] = np.max(dust_out)
+    #         image_hdu.header["NPHOT"] = inp_par.num_photon
+    #         image_hdu.header["ALBEDO"] = inp_par.albedo
+    #         image_hdu.header["G"] = inp_par.g
+    #         image_hdu.header["WAVELENG"] = wavelengths_list[i]
             
-            hdulist.append(image_hdu)
-            hdulist.flush()
+    #         hdulist.append(image_hdu)
+    #         hdulist.flush()
             # hdulist.writeto(filename, overwrite=True)
 
     print(f'{filename} updated\n')
