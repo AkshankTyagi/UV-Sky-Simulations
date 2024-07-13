@@ -105,9 +105,10 @@ print('\nworking2------ Reading hipstars and initialise log files')
 # Read Stellar Files
 hipstars = Get_hipstars()
 NSTARS = int(len(hipstars))
-wavelengths_list = hipstars.loc[0, 'wavelengths']
-# wavelengths_str = wavelengths_str.replace('  ', ',')
-wavelengths_list = ast.literal_eval(wavelengths_list)
+wavelengths_str = hipstars.loc[0, 'wavelengths']
+wavelengths_str = wavelengths_str.replace(' ', ',')
+wavelengths_str = wavelengths_str.replace(',,', ',')
+wavelengths_list = ast.literal_eval(wavelengths_str)
 print(f"NSTARS: {NSTARS},\nwavelengths_list:{wavelengths_list}, {wavelengths_list[0]} ")
 
 # np.savetxt(f'excluded_stars_{len(excluded_stars)}.txt', np.array(excluded_stars), fmt='%d')
