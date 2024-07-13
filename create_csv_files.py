@@ -155,7 +155,7 @@ def Get_hipstars():
 #     return hipstars , excluded_stars
 
 def Create_Allstars_flux(hipstars):
-    wavelengths_list = hipstars.loc[0, 'wavelengths']
+    wavelengths_str = hipstars.loc[0, 'wavelengths']
     wavelengths_str = wavelengths_str.replace('\n ', ',')
     wavelengths_str = wavelengths_str.replace('  ', ',')
     

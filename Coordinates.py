@@ -109,7 +109,7 @@ def get_world_coordinates(x, y, fits_file):
 
 def plot_diffused_bg(data, wavelength, nphoton):
 
-    data= data/1000
+    data= data/1000 
 
     n = np.random.rand()
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
