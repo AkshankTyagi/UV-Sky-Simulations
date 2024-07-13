@@ -264,7 +264,7 @@ def scattered_light(data):
     # phot_log_file = open("every_photon.log", "w")
     # fix_rnd = 0
     tot_star = weighted_list.iloc[int(i)][-1]
-    print(f'---{i+1}--- wavelength={w}, N_stars = {NSTARS}, tot_star:{tot_star}')
+    print(f'---{i+1}--- wavelength:{w}, sigma = {sigma}  N_stars = {NSTARS}, tot_star:{tot_star}')
 
     # The dust and energy arrays are continuously built up
     dust_arr = np.zeros(( 1800, 3600))
