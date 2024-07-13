@@ -156,9 +156,8 @@ def Get_hipstars():
 
 def Create_Allstars_flux(hipstars):
     wavelengths_list = hipstars.loc[0, 'wavelengths']
-
-    wavelengths_str = wavelengths_str.replace(' ', ',')
-    wavelengths_str = wavelengths_str.replace(',,', ',')
+    wavelengths_str = wavelengths_str.replace('\n ', ',')
+    wavelengths_str = wavelengths_str.replace('  ', ',')
     
     wavelengths_list = np.array(ast.literal_eval(wavelengths_list)).astype(np.float32)
 

@@ -408,7 +408,7 @@ int main (int argc, char *argv[])
         }
         //Save work every 1,000,000 photons
         if (((nphoton % 10000000) == 0) && (nphoton > 0)){
-            fclose(phot_log_file);
+            fclose(phot_log_file); 
             if (strcmp(inp_par.print_debug, "yes") == 0)
                 phot_log_file = fopen("every_photon.log", "a");
             else phot_log_file = fopen("every_photon.log", "w");

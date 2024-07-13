@@ -1,3 +1,9 @@
 
 green_dust_60/green_filled_3d.fits
 green_dust_60_col/green_filled_cum_3d.fits
+
+init_parameter.txt
+
+hipstars_data\[100,4000\]_mag20.csv
+
+my_scatter_output1000000.csv
