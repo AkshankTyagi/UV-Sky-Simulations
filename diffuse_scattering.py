@@ -105,10 +105,10 @@ print('\nworking2------ Reading hipstars and initialise log files')
 # Read Stellar Files
 hipstars = Get_hipstars()
 NSTARS = int(len(hipstars))
-wavelengths_str = hipstars.loc[0, 'wavelengths']
-wavelengths_str = wavelengths_str.replace(' ', ',')
-wavelengths_list = ast.literal_eval(wavelengths_str)
-print(f"NSTARS:{NSTARS}, wavelengths_list:{wavelengths_list} ")
+wavelengths_list = hipstars.loc[0, 'wavelengths']
+# wavelengths_str = wavelengths_str.replace('  ', ',')
+wavelengths_list = ast.literal_eval(wavelengths_list)
+print(f"NSTARS: {NSTARS},\nwavelengths_list:{wavelengths_list}, {wavelengths_list[0]} ")
 
 # np.savetxt(f'excluded_stars_{len(excluded_stars)}.txt', np.array(excluded_stars), fmt='%d')
 # print(f'working1:----- Nstars:{NSTARS}, excluded_stars_{len(excluded_stars)}.txt saved, {hipstars[-1].index, hipstars[-1].hip_no}' )
@@ -277,12 +277,12 @@ def scattered_light(data):
             # init_seed = 1645310043
             # fix_rnd = -1
 
-        if (nphoton % 10000 == 0) and nphoton!= 0: # and (nphoton > 0):
+        if (nphoton % 1000000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
-            print(f"nphoton: {nphoton}, time for loop: {timez - time1},")
-            if (nphoton % 1000000 == 0):
+            print(f"wavelength: {w}, nphoton: {nphoton}, time for loop: {timez - time1},")
+            if (nphoton % 10000000 == 0):
                 CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)
-                plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
+                # plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
             #, starlog, misslog, totlog, distlog, scatlog)
             # plot_diffused_bg(dust_arr*tot_star / nphoton, 1105)
             # phot_log_file.close()
@@ -424,7 +424,7 @@ if __name__ == '__main__':
         scatter_wavelengths.append([i,w])
 
 
-    NProcessor = 2
+    NProcessor = 10
     start_time = time.time()
 
     if len(scatter_wavelengths) < NProcessor:
@@ -433,10 +433,10 @@ if __name__ == '__main__':
     print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
 
     with mp.Pool(processes = NProcessor) as pool:
-        # print("working!!!!!!")
+        print("working!!!!!!")
     # Use the pool to apply the function to each pair in the input list
         pool.map(scattered_light, scatter_wavelengths )
-        # print("working2!!!!!!")
+        print("working2!!!!!!")
 
     print(f"time taken: {time.time() - start_time}")
 

@@ -311,7 +311,14 @@ def Trim_Spectral_data(data, photons):
     # print(wave_min, wave_max)
     low_lim = index_greater_than(data['wavelength'], wave_min)
     high_lim = index_greater_than(data['wavelength'], wave_max)
-    return data['wavelength'][low_lim: high_lim], data['spectrum'][low_lim: high_lim], photons[low_lim: high_lim]
+    wavelengths_data = []
+    flux_data = []
+    
+    for wave in np.array(data['wavelength'][low_lim: high_lim]):
+        wavelengths_data.append(wave)
+    for flux in np.array(photons[low_lim: high_lim]):
+        flux_data.append(flux)
+    return wavelengths_data, flux_data 
 
 def GET_SCALE_FACTOR( V_mag, parallax, B_V, waveL_range, stellar_spectra):
 
@@ -345,7 +352,7 @@ def GET_SCALE_FACTOR( V_mag, parallax, B_V, waveL_range, stellar_spectra):
 
         for w in  range (len(waveL_range)):
             photon_number = stellar_spectra[w] * scale * 4 * math.pi * ERG_TO_PHOT * waveL_range[w]
-            if (photon_number <= 1e-10):
+            if (photon_number <= 1e-5):
                 photon_number = 0
 
             tot_photons.append(photon_number)

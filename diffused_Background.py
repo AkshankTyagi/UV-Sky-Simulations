@@ -91,10 +91,10 @@ def plot_diffused_bg(data, wavelength, nphoton):
     # plt.colorbar()
     plt.title(f'diffused_UV_background@{wavelength} for {nphoton}')
     # plt.savefig(fr'{folder_loc}diffused_data{os.sep}diffused_UV_BG_{wavelength}.jpg', dpi=300)
-    plt.savefig(fr'{folder_loc}diffused_data{os.sep}trial1000N{nphoton}_{wavelength}.jpg', dpi=300)
+    plt.savefig(fr'{folder_loc}diffused_output{os.sep}trial1000N{nphoton}_{wavelength}.jpg', dpi=300)
 
     plt.show(block=False)  # Show the plot non-blocking
-    plt.pause(115)           # Pause for 2 seconds
+    plt.pause(2)           # Pause for 2 seconds
     plt.close() 
 
 

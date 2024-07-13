@@ -46,7 +46,7 @@ class stars:
         self.distance = 0
         self.temperature = 0
         self.wavelengths = []
-        self.Iflux = []
+        # self.Iflux = []
         # self.nstars = nstars
         self.scale = 0
         self.tot_photons = []
@@ -198,31 +198,6 @@ def write_to_grid(wcs, ra, dec, flux, grid):
 
     return grid
 
-# def write_to_gridgg(wcs_param, ra, dec, flux, grid2):
-#     wcs = WCS(naxis=2)
-#     wcs.wcs.crval = [wcs_param[0], wcs_param[1]]
-#     wcs.wcs.crpix = [wcs_param[2], wcs_param[3]]
-#     wcs.wcs.cdelt = [wcs_param[4], wcs_param[5]]
-#     wcs.wcs.crota = [wcs_param[6], wcs_param[6]]
-#     wcs.wcs.ctype = [f"RA--{wcs_param[7]}", f"DEC-{wcs_param[7]}"]
-#     wcs.array_shape = [ wcs_param[9], wcs_param[8],]  # shape of the grid
-
-#     # Perform world to pixel transformation
-#     # gl, gb = conv_eq_to_gal(ra, dec)
-#     xout, yout = wcs.world_to_pixel_values(ra, dec)
-#     # print(f"ra{ra}, dec{dec}, gl{gl}, gb{gb}, xout{xout}, yout{yout}" )
-
-#     # Check if the pixel coordinates are within the bounds of the grid
-#     if 1 <= xout <= wcs.array_shape[1] and 1 <= yout <= wcs.array_shape[0]:
-#         # Correct because FITS standard is to start at 1
-#         xout -= 1
-#         yout -= 1
-
-#         # print(xout, yout, ipixel)
-#         # Add the flux to the grid
-#         grid2[int(yout), int(xout)] += flux / abs(np.deg2rad(wcs.wcs.cdelt[0]) * np.deg2rad(wcs.wcs.cdelt[1]))
-
-#     return grid2
 
 def CHECKPOINT(dust_arr, inp_par, nphoton, tot_star, wcs, hipstars, wavelength):#, starlog, misslog, totlog, distlog, scatlog):
     # Time related
@@ -245,14 +220,26 @@ def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, wavelength):#i,
     min_wave, max_wave = read_parameter_file()
     filename = f"diffused_output{os.sep}scattered_{int(inp_par.num_photon)}[{int(wavelength)}]_mag{int(star_mag_threshold)}.fits"
 
-    dust_out = (np.round(grid * tot_star / inp_par.num_photon, decimals=3)).astype(np.float32)
+    dust_out = (np.round(grid * tot_star / nphoton, decimals=3)).astype(np.float32)
     # dust_out = (grid * tot_star / inp_par.num_photon).astype(np.int32)
 
-    # dust_out[1500, 500] = 1000
-    # plot_diffused_bg(dust_out, wavelengths_list[i])
-
-    # Create or open the FITS file
-    # if i == 0:
+    # try:
+    #     # Try to open the existing FITS file
+    #     hdul = fits.open(filename, mode='update')
+    #     if nphoton >= hdul[0].header["NPHOT"]:
+    #         data = hdul[0].data
+    #         # Update the dust_out array
+    #         dust_out = (dust_out + data) / 2
+    #         print(f"Updating {filename} to have more data")
+    #         hdul[0].data = dust_out
+    #         hdul[0].header["NPHOT"] = int(hdul[0].header["NPHOT"])+inp_par.num_photon
+    #         hdul[0].header["DATAMIN"] = np.min(dust_out)
+    #         hdul[0].header["DATAMAX"] = np.max(dust_out)
+            
+    #         hdul.flush()  # Ensure changes are written to the file
+    #     hdul.close()
+    # except FileNotFoundError:
+    #     print(f"creating new {filename}")
         # Create a new FITS file with the primary HDU
     primary_hdu = fits.PrimaryHDU(dust_out)
     primary_hdu.header["CRVAL1"] = wcs_param[0]
@@ -267,7 +254,7 @@ def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, wavelength):#i,
     primary_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
     primary_hdu.header["DATAMIN"] = np.min(dust_out)
     primary_hdu.header["DATAMAX"] = np.max(dust_out)
-    primary_hdu.header["NPHOT"] = inp_par.num_photon
+    primary_hdu.header["NPHOT"] = nphoton
     primary_hdu.header["ALBEDO"] = inp_par.albedo
     primary_hdu.header["G"] = inp_par.g
     primary_hdu.header["WAVELENG"] = wavelength

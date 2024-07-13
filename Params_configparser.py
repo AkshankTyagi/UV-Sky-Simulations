@@ -41,8 +41,8 @@ config['Params_1'] = {
     'star_mag_threshold' : 20, #threshold for what apaarent magnitude stars we want to look at
     
     # Spectrum Parameters (UV Band Wavelengths in Angstroms)
-    'limit_min': 1100,
-    'limit_max': 1110,
+    'limit_min': 100,
+    'limit_max': 4000,
 
     #Animation parameters
     # set view
@@ -53,11 +53,11 @@ config['Params_1'] = {
 }
 config['Scatter_params'] = {
     # Dust Scatter Parameters
-    "No_Photons":  100000, 
-    'wavelength': [1105],
+    "No_Photons":  1000000000, 
+    'wavelength': [205, 500, 805, 1105, 1505, 2055, 2305, 3450, 3010, 3790],
     'No_scatter': 5,
-    'Albedo': 0.40, #0.36
-    'Phase_func': 0.6, #0.5
+    'Albedo': 0.36, #0.36, 0.4
+    'Phase_func': 0.5, #0.5, 0.6
     'print_debug': "no",
     'min_gl_debug':0,
     'max_gl_debug': 360,
