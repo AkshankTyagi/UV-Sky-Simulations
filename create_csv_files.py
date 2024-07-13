@@ -158,7 +158,8 @@ def Create_Allstars_flux(hipstars):
     wavelengths_list = hipstars.loc[0, 'wavelengths']
 
     # wavelengths_str = wavelengths_str.replace(' ', ',')
-    wavelengths_list = ast.literal_eval(wavelengths_list)
+    wavelengths_list = np.array(ast.literal_eval(wavelengths_list)).astype(np.float32)
+
     print(wavelengths_list[0])
 
     data_dict = {'Wavelengths': wavelengths_list}
@@ -170,7 +171,7 @@ def Create_Allstars_flux(hipstars):
         if phot_str[:4] == '[nan':
             phot = [0] * len(wavelengths_list)  # Or handle as you prefer
         else:
-            phot = (ast.literal_eval(phot_str))
+            phot = np.array(ast.literal_eval(phot_str)).astype(np.float64)
             # phot = phot_str
 
         data_dict[f'{int(row["index"])}'] = phot

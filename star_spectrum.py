@@ -369,14 +369,10 @@ def Trim_Spectral_data(data, photons):
     low_lim = index_greater_than(data['wavelength'], wave_min)
     high_lim = index_greater_than(data['wavelength'], wave_max)
     
-    wavelengths_data = np.array(data['wavelength'][low_lim: high_lim])
-    flux_data = np.array(photons[low_lim: high_lim])
+    wavelengths_data = list(data['wavelength'][low_lim: high_lim])
+    flux_data = list(photons[low_lim: high_lim])
     
-    # Convert the arrays to comma-separated strings
-    wavelengths_str = ",".join(map(str, wavelengths_data))
-    flux_str = ",".join(map(str, flux_data))
-    
-    return wavelengths_str, flux_str
+    return wavelengths_data, flux_data
 
 
 # # Example usage
