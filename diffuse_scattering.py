@@ -59,7 +59,7 @@ dust_dist = dust_read(dust_par, dust_file)  # Read dust file
 # print('dust_dist\n',dust_dist[0,0,2])
 col_density = dust_read(dust_par, dust_col_file)  # File containing column densities
 # print('col_density\n',col_density[0])
-sigma = read_cross_sec(sigma_file, dust_par)
+sigma_list = read_cross_sec(sigma_file, dust_par)
 
 # wcs data
 wcs_param = read_wcs_parameters()
@@ -71,7 +71,7 @@ wcs.wcs.crota = [wcs_param[6], wcs_param[6]]
 wcs.wcs.ctype = [f"GLON{wcs_param[7]}", f"GLAT{wcs_param[7]}"]
 wcs.array_shape = [ wcs_param[9], wcs_param[8],] 
 
-print(f"sigma \n{sigma}")
+print(f"sigma \n{sigma_list}")
 print(f"dust_par.dust_xsize:{dust_par.dust_xsize}, dust_par.dust_ysize:{dust_par.dust_ysize}, dust_par.dust_zsize:{dust_par.dust_zsize}\ndust_par.dust_binsize :{dust_par.dust_binsize }")
 
 # Probabilities for scattering
@@ -257,7 +257,8 @@ print('Begining scattering')
 
 # Define the scatter function
 def scattered_light(data):
-    i, w = data
+    i, j,  w = data
+    sigma = sigma_list[j]
     nphoton = 0
     time1 = time.time()
     # phot_log_file = open("every_photon.log", "w")
@@ -360,7 +361,7 @@ def scattered_light(data):
                 flux *= intens / dst
                 # print(f"flux2: {flux}, factor:{intens / dst}")
                 intens -= flux
-                extinct = col_density[dust_index[0], dust_index[1], dust_index[2]] * sigma[0]
+                extinct = col_density[dust_index[0], dust_index[1], dust_index[2]] * sigma
                 flux *= np.exp(-extinct)
                 # print(f"flux3: {flux}, factor:{np.exp(-extinct)}")
                 cum_flux += flux 
@@ -422,7 +423,8 @@ if __name__ == '__main__':
     scatter_wavelengths = []
     for w in dust_par.wave:
         i = wavelengths_list.index(w)
-        scatter_wavelengths.append([i,w])
+        j = dust_par.wave.index(w)
+        scatter_wavelengths.append([i,j,w])
 
 
     NProcessor = 10
