@@ -120,7 +120,7 @@ def plot_diffused_bg(data, wavelength, nphoton, a, g):
     plt.colorbar()
     plt.title(f'diffused_UV_background@{wavelength} for {nphoton}')
     # plt.savefig(fr'C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_11000000_{wavelength}.jpg')
-    plt.savefig(fr'{folder_loc}diffused_output{os.sep}trial1000N{nphoton}_{a}_{g}_{wavelength}.jpg', dpi=1000)
+    plt.savefig(fr'{folder_loc}diffused_output{os.sep}trial1000N{nphoton}_{wavelength}.jpg', dpi=1000)
     
     plt.show(block=False)  # Show the plot non-blocking
     plt.pause(2)           # Pause for 2 seconds

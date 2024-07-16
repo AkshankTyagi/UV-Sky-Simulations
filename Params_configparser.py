@@ -41,8 +41,8 @@ config['Params_1'] = {
     'star_mag_threshold' : 20, #threshold for what apaarent magnitude stars we want to look at
     
     # Spectrum Parameters (UV Band Wavelengths in Angstroms)
-    'limit_min': 1100,
-    'limit_max': 1110,
+    'limit_min': 100,
+    'limit_max': 4000,
 
     #Animation parameters
     # set view

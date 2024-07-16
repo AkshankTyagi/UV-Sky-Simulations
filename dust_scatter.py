@@ -269,14 +269,14 @@ def MATCH_TAU(x_new, y_new, z_new, dust_par, delta_x_ptr, delta_y_ptr, delta_z_p
             y_new += delta_y
             z_new += delta_z
             dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
-            cum_tau += (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
+            cum_tau += (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma * step_size * dust_par.dust_binsize)
         
         if step_size < 0.1:
             cont = False
         
         if cont and CHECK_LIMITS(x_new, y_new, z_new, dust_par):
             dust_index = GET_DUST_INDEX(x_new, y_new, z_new)
-            cum_tau -= (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma[0] * step_size * dust_par.dust_binsize)
+            cum_tau -= (dust_dist[dust_index[0], dust_index[1], dust_index[2]] * sigma * step_size * dust_par.dust_binsize)
             x_new -= delta_x
             y_new -= delta_y
             z_new -= delta_z

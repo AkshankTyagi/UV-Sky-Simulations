@@ -306,13 +306,6 @@ def GET_SPECTRA(spec_dir, data):
     
     return spectral_FOV
 
-def Trim_Spectral_data(data, photons):
-    wave_min , wave_max = read_parameter_file()
-    # print(wave_min, wave_max)
-    low_lim = index_greater_than(data['wavelength'], wave_min)
-    high_lim = index_greater_than(data['wavelength'], wave_max)
-    return data['wavelength'][low_lim: high_lim], data['spectrum'][low_lim: high_lim], photons[low_lim: high_lim]
-
 def GET_SCALE_FACTOR( V_mag, parallax, B_V, waveL_range, stellar_spectra):
 
     # V_mag, parallax, B_V= c[4][j], c[5][j], c[6][j]
@@ -345,7 +338,7 @@ def GET_SCALE_FACTOR( V_mag, parallax, B_V, waveL_range, stellar_spectra):
 
         for w in  range (len(waveL_range)):
             photon_number = stellar_spectra[w] * scale * 4 * math.pi * ERG_TO_PHOT * waveL_range[w]
-            if (photon_number <= 1e-10):
+            if (photon_number <= 1e-5):
                 photon_number = 0
 
             tot_photons.append(photon_number)
@@ -370,6 +363,16 @@ def GET_ALL_STAR_DISTANCE(parallax_list):
 def GET_SCALE_FACTOR_ALL_STARS(all_spectra):
     return 0
 
+def Trim_Spectral_data(data, photons):
+    wave_min, wave_max = read_parameter_file()
+    # print(wave_min, wave_max)
+    low_lim = index_greater_than(data['wavelength'], wave_min)
+    high_lim = index_greater_than(data['wavelength'], wave_max)
+    
+    # wavelengths_data = list(data['wavelength'][low_lim: high_lim])
+    # flux_data = list()
+    
+    return np.array(data['wavelength'][low_lim: high_lim]).astype(np.float32), np.array(photons[low_lim: high_lim]).astype(np.float64)
 
 
 # # Example usage
