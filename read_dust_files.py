@@ -252,28 +252,66 @@ def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, wavelength):#i,
     # plot_diffused_bg(dust_out, wavelengths_list[i])
 
     # Create or open the FITS file
-    # if i == 0:
+    if nphoton == inp_par.num_photon:
+        try:
+            hdul = fits.open(filename, mode='update')
+            # if nphoton >= hdul[0].header["NPHOT"]:
+            data = hdul[0].data
+            # Update the dust_out array
+            dust_out = (dust_out + data)/(1 + int(hdul[0].header["NPHOT"])/nphoton) 
+            print(f"Updating {filename} to have more data")
+            hdul[0].data = dust_out
+            hdul[0].header["NPHOT"] = int(hdul[0].header["NPHOT"])+inp_par.num_photon
+            hdul[0].header["DATAMIN"] = np.min(dust_out)
+            hdul[0].header["DATAMAX"] = np.max(dust_out)
+            hdul.flush()
+            hdul.close()
+        except FileNotFoundError:
         # Create a new FITS file with the primary HDU
-    primary_hdu = fits.PrimaryHDU(dust_out)
-    primary_hdu.header["CRVAL1"] = wcs_param[0]
-    primary_hdu.header["CRPIX1"] = wcs_param[2]
-    primary_hdu.header["CDELT1"] = wcs_param[4]
-    primary_hdu.header["CROTA1"] = wcs_param[6]
-    primary_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
-    primary_hdu.header["CRVAL2"] = wcs_param[1]
-    primary_hdu.header["CRPIX2"] = wcs_param[3]
-    primary_hdu.header["CDELT2"] = wcs_param[5]
-    primary_hdu.header["CROTA2"] = wcs_param[6]
-    primary_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
-    primary_hdu.header["DATAMIN"] = np.min(dust_out)
-    primary_hdu.header["DATAMAX"] = np.max(dust_out)
-    primary_hdu.header["NPHOT"] = inp_par.num_photon
-    primary_hdu.header["ALBEDO"] = inp_par.albedo
-    primary_hdu.header["G"] = inp_par.g
-    primary_hdu.header["WAVELENG"] = wavelength
-    
-    hdulist = fits.HDUList([primary_hdu])
-    hdulist.writeto(filename, overwrite=True)
+            primary_hdu = fits.PrimaryHDU(dust_out)
+            primary_hdu.header["CRVAL1"] = wcs_param[0]
+            primary_hdu.header["CRPIX1"] = wcs_param[2]
+            primary_hdu.header["CDELT1"] = wcs_param[4]
+            primary_hdu.header["CROTA1"] = wcs_param[6]
+            primary_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
+            primary_hdu.header["CRVAL2"] = wcs_param[1]
+            primary_hdu.header["CRPIX2"] = wcs_param[3]
+            primary_hdu.header["CDELT2"] = wcs_param[5]
+            primary_hdu.header["CROTA2"] = wcs_param[6]
+            primary_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
+            primary_hdu.header["DATAMIN"] = np.min(dust_out)
+            primary_hdu.header["DATAMAX"] = np.max(dust_out)
+            primary_hdu.header["NPHOT"] = inp_par.num_photon
+            primary_hdu.header["ALBEDO"] = inp_par.albedo
+            primary_hdu.header["G"] = inp_par.g
+            primary_hdu.header["WAVELENG"] = wavelength
+            
+            hdulist = fits.HDUList([primary_hdu])
+            hdulist.writeto(filename, overwrite=True)
+            hdulist.close()
+    else:
+        filename = f"diffused_output{os.sep}_____{int(inp_par.num_photon)}[{int(wavelength)}]trial.fits"
+        primary_hdu = fits.PrimaryHDU(dust_out)
+        primary_hdu.header["CRVAL1"] = wcs_param[0]
+        primary_hdu.header["CRPIX1"] = wcs_param[2]
+        primary_hdu.header["CDELT1"] = wcs_param[4]
+        primary_hdu.header["CROTA1"] = wcs_param[6]
+        primary_hdu.header["CTYPE1"] = f"GLON{wcs_param[7]}"
+        primary_hdu.header["CRVAL2"] = wcs_param[1]
+        primary_hdu.header["CRPIX2"] = wcs_param[3]
+        primary_hdu.header["CDELT2"] = wcs_param[5]
+        primary_hdu.header["CROTA2"] = wcs_param[6]
+        primary_hdu.header["CTYPE2"] = f"GLAT{wcs_param[7]}"
+        primary_hdu.header["DATAMIN"] = np.min(dust_out)
+        primary_hdu.header["DATAMAX"] = np.max(dust_out)
+        primary_hdu.header["NPHOT"] = nphoton
+        primary_hdu.header["ALBEDO"] = inp_par.albedo
+        primary_hdu.header["G"] = inp_par.g
+        primary_hdu.header["WAVELENG"] = wavelength
+        
+        hdulist = fits.HDUList([primary_hdu])
+        hdulist.writeto(filename, overwrite=True)
+        hdulist.close()
 
     # else:
     #     # Open the existing FITS file
@@ -302,4 +340,3 @@ def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, wavelength):#i,
             # hdulist.writeto(filename, overwrite=True)
 
     print(f'{filename} updated\n')
-    hdulist.close()

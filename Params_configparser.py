@@ -53,11 +53,11 @@ config['Params_1'] = {
 }
 config['Scatter_params'] = {
     # Dust Scatter Parameters
-    "No_Photons":  100000, 
+    "No_Photons":  10000000, 
     'wavelength': [1105],
     'No_scatter': 5,
-    'Albedo': 0.40, #0.36
-    'Phase_func': 0.6, #0.5
+    'Albedo': 0.36, #0.36, 0.40
+    'Phase_func': 0.5, #0.5, 0.6
     'print_debug': "no",
     'min_gl_debug':0,
     'max_gl_debug': 360,

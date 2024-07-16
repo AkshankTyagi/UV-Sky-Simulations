@@ -9,11 +9,13 @@ from numba import njit
 
 NANGLE =  100000
 
+@njit
 def PHASE_FUNCTION(cangle, g):
     # Henyey-Greenstein phase function
     pscat = (1 - g **2) / (4. * math.pi* (pow(1. + g**2 - 2. * g * cangle, 1.5)))
     return pscat
 
+@njit
 def SETUP_ANGLE():
     angle = np.zeros(NANGLE) 
     # NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
@@ -29,6 +31,7 @@ def SETUP_ANGLE():
     
     return angle
 
+@njit
 def SETUP_SCATTER( g):
     fscat = np.zeros(NANGLE)  # Assuming NANGLE is defined outside the function
     fscat[0] = 0.0
@@ -43,40 +46,6 @@ def SETUP_SCATTER( g):
         fscat[i] /= max_fscat
 
     return fscat
-
-# def CALC_THETA(angle, random):
-#     # NANGLE = len(angle)  # Assuming NANGLE is defined outside the function
-#     max_i = NANGLE
-#     min_i = 0
-#     i = 0
-#     index = 0.0
-#     theta = 0.0
-
-#     # Binary Search
-#     while max_i - min_i > 3:
-#         i = min_i + (max_i - min_i) // 2
-#         while angle[i] < random and max_i - i > 1:
-#             min_i = i
-#             i += (max_i - i) // 2
-#         if angle[i] > random:
-#             max_i = i
-#         while angle[i] > random and i - min_i > 1:
-#             max_i = i
-#             i -= (i - min_i) // 2
-#         if angle[i] < random:
-#             min_i = i
-    
-#     i = min_i
-#     while angle[i] < random and i < NANGLE:
-#         i += 1  # Theta selection
-
-#     if i == 0:
-#         index = 0.0
-#     else:
-#         index = float(i - 1) + (angle[i] - random) / (angle[i] - angle[i - 1])
-
-#     theta = index / float(NANGLE) * math.pi  # Theta will be between 0 and PI in radians
-#     return theta
 
 @njit
 def CALC_THETA(angle, random):
@@ -104,6 +73,7 @@ def CALC_THETA(angle, random):
     theta = index / float(NANGLE) * math.pi  # Theta will be between 0 and PI in radians
     return theta
 
+# @njit
 def DETECT(x1, y1, z1, dx, dy, dz, dust):
     # Calculate distances
     d1 = math.sqrt(dx*dx + dy*dy + dz*dz)
@@ -120,6 +90,7 @@ def DETECT(x1, y1, z1, dx, dy, dz, dust):
     pscat = PHASE_FUNCTION(cangl, dust.g)
     return pscat
 
+# @njit
 def SCATTER(delta_x, delta_y, delta_z, theta, phi):
     xnew = math.cos(phi) * math.sin(theta)
     ynew = math.sin(phi) * math.sin(theta)

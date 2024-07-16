@@ -256,13 +256,13 @@ print('Begining scattering')
 
 # Define the scatter function
 def scattered_light(data):
-    i, w = data
+    i, w, a, g = data
     nphoton = 0
     time1 = time.time()
     # phot_log_file = open("every_photon.log", "w")
     # fix_rnd = 0
     tot_star = weighted_list.iloc[int(i)][-1]
-    print(f'---{i+1}--- wavelength={w}, N_stars = {NSTARS}, tot_star:{tot_star}')
+    print(f'---{i+1}--- wavelength={w}, a: {a}, g: {g}, N_stars = {NSTARS}, tot_star:{tot_star}')
 
     # The dust and energy arrays are continuously built up
     dust_arr = np.zeros(( 1800, 3600))
@@ -277,12 +277,12 @@ def scattered_light(data):
             # init_seed = 1645310043
             # fix_rnd = -1
 
-        if (nphoton % 10000 == 0) and nphoton!= 0: # and (nphoton > 0):
+        if (nphoton % 100000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
             print(f"nphoton: {nphoton}, time for loop: {timez - time1},")
             if (nphoton % 1000000 == 0):
                 CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)
-                plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
+                # plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
             #, starlog, misslog, totlog, distlog, scatlog)
             # plot_diffused_bg(dust_arr*tot_star / nphoton, 1105)
             # phot_log_file.close()
@@ -392,7 +392,7 @@ def scattered_light(data):
     time2 = time.time()
     print("Time taken for this wavelength_process:", time2 - time1)
     CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)#, starlog, misslog, totlog, distlog, scatlog)
-    plot_diffused_bg(dust_arr*tot_star/nphoton, w, dust_par.num_photon)
+    plot_diffused_bg(dust_arr*tot_star/nphoton, w, dust_par.num_photon, a , g )
     # plot_diffused_bg(dust_arr2*tot_star / nphoton, 110500)
     # print(dust_arr)
 
@@ -418,27 +418,33 @@ def scattered_light(data):
 
 # main
 if __name__ == '__main__':
-    scatter_wavelengths = []
+    # scatter_wavelengths = []
     for w in dust_par.wave:
         i = wavelengths_list.index(w)
-        scatter_wavelengths.append([i,w])
+        # albedo = [1, 0.8, 0.4 , 0.36, 0.1]
+        # g_func = [1, 0.6, 0.5, 0.3, 0]
+        # for a in albedo:
+        #     for g in g_func:
+                # scatter_wavelengths.append([i,w])
+        a = 0.36
+        g= 0.5
+        scattered_light([i, w, a, g])
 
+    # NProcessor = 2
+    # start_time = time.time()
 
-    NProcessor = 2
-    start_time = time.time()
+    # if len(scatter_wavelengths) < NProcessor:
+    #     NProcessor = len(scatter_wavelengths)
 
-    if len(scatter_wavelengths) < NProcessor:
-        NProcessor = len(scatter_wavelengths)
+    # print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
 
-    print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
+    # with mp.Pool(processes = NProcessor) as pool:
+    #     # print("working!!!!!!")
+    # # Use the pool to apply the function to each pair in the input list
+    #     pool.map(scattered_light, scatter_wavelengths )
+    #     # print("working2!!!!!!")
 
-    with mp.Pool(processes = NProcessor) as pool:
-        # print("working!!!!!!")
-    # Use the pool to apply the function to each pair in the input list
-        pool.map(scattered_light, scatter_wavelengths )
-        # print("working2!!!!!!")
-
-    print(f"time taken: {time.time() - start_time}")
+    # print(f"time taken: {time.time() - start_time}")
 
     
     # pr = cProfile.Profile()
