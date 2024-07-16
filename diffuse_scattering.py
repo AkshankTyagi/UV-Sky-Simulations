@@ -432,6 +432,9 @@ if __name__ == '__main__':
     NProcessor = 10
     start_time = time.time()
 
+    if NProcessor > len(dust_par.wave):
+        NProcessor = len(dust_par.wave)
+
     print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
 
     with mp.Pool(processes = NProcessor) as pool:
