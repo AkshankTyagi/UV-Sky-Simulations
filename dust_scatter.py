@@ -12,7 +12,7 @@ NANGLE =  100000
 @njit
 def PHASE_FUNCTION(cangle, g):
     # Henyey-Greenstein phase function
-    pscat = (1 - g **2) / (4. * math.pi* (pow(1. + g**2 - 2. * g * cangle, 1.5)))
+    pscat = (1 - g **2) / (4. * math.pi* (pow((1. + g**2 - 2 * g * cangle), 1.5)))
     return pscat
 
 @njit
@@ -25,9 +25,10 @@ def SETUP_ANGLE():
         angle[i] = angle[i-1] + math.sin(theta)
     
     # Normalize the angles
-    max_angle = angle[NANGLE - 1]
-    for i in range(1, NANGLE):
-        angle[i] /= max_angle
+    # max_angle = angle[NANGLE - 1]
+    # for i in range(1, NANGLE):
+    #     angle[i] /= max_angle
+    angle /= angle[NANGLE - 1]
     
     return angle
 
@@ -179,7 +180,7 @@ def FIRST_PHOTON(dust_par, star, angle):#,  ran_array, nrandom, ran_ctr, init_se
         unif_rand = GET_RANDOM_ARRAY()# ran_array, nrandom, ran_ctr, init_seed)
         theta = CALC_THETA(angle, unif_rand)
         phi = GET_RANDOM_ARRAY()* 2 * math.pi# ran_array, nrandom, ran_ctr, init_seed) 
-
+        # print(theta, phi)
         delta_x_ptr, delta_y_ptr, delta_z_ptr = CALC_DELTA_X(theta, phi)
         # print("NEW_PHOTON working", iter)
 

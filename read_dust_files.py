@@ -220,7 +220,12 @@ def write_fits_file(wcs_param, grid, nphoton, tot_star, inp_par, wavelength):#i,
     min_wave, max_wave = read_parameter_file()
     filename = f"diffused_output{os.sep}scattered_{int(inp_par.num_photon)}[{int(wavelength)}]_mag{int(star_mag_threshold)}.fits"
 
-    dust_out = (np.round(grid * tot_star / nphoton, decimals=3)).astype(np.float32)
+    if tot_star == False:
+        dust_out =(np.round(grid, decimals=3)).astype(np.float32)
+    else:
+        dust_out = (np.round(grid * tot_star / nphoton, decimals=3)).astype(np.float32)
+
+    
     # dust_out = (grid * tot_star / inp_par.num_photon).astype(np.int32)
 
     # dust_out[1500, 500] = 1000

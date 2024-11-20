@@ -77,9 +77,7 @@ def get_world_coordinates(x, y, fits_file):
 
 def plot_diffused_bg(data, wavelength, nphoton, a, g):
 
-
-    data= data#/10
-    
+    data= data#/10    
 
     # n = np.random.rand()
     colors = [(0, 0, 0), (0, 0, 1)]  # Black to blue
@@ -92,7 +90,7 @@ def plot_diffused_bg(data, wavelength, nphoton, a, g):
     plt.colorbar()
     plt.title(f'diffused_UV_background@{wavelength} for {nphoton}')
     # plt.savefig(fr'{folder_loc}diffused_data{os.sep}diffused_UV_BG_{wavelength}.jpg', dpi=300)
-    plt.savefig(fr'{folder_loc}diffused_output{os.sep}trial1000N{nphoton}_{wavelength}.jpg', dpi=300)
+    plt.savefig(fr'{folder_loc}diffused_output{os.sep}trial1000N{nphoton}_{wavelength}.jpg', dpi=1000)
 
     plt.show(block=False)  # Show the plot non-blocking
     plt.pause(20)           # Pause for 2 seconds
@@ -105,9 +103,10 @@ def plot_diffused_bg(data, wavelength, nphoton, a, g):
 
 # print ('working')
 for x in [1100]:
-    nphoton = 1000000000
+    nphoton = 1000001
     # fits_filename = f"{folder_loc}diffused_data{os.sep}scattered_1e10_{x}_a40_g6{os.sep}scattered.fits"
     # fits_filename = r"C:\Users\Akshank Tyagi\Documents\GitHub\UV-Sky-Simulations\diffused_data\scattered_1e10_1100_a40_g6\scattered.fits"
+    x = 1105
     fits_filename = fr'{folder_loc}diffused_output{os.sep}scattered_{nphoton}[1105]_mag20.fits'
     # x = 1105
 

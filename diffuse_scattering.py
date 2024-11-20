@@ -27,6 +27,7 @@ import csv
 nrandom = 100
 NANGLE = 100000  # NANGLE
 MIN_INTENS =1e-20
+global nprocess
 
 folder_loc , params_file = get_folder_loc()
 # params_file = f'{folder_loc}init_parameter.txt'
@@ -50,6 +51,7 @@ print('working1------ Reading dust_files and parameter files ')
 
 wave_min, wave_max = read_parameter_file()
 dust_par = read_scatter_parameters()
+print(f" Num Photons = {dust_par.num_photon}, Wavelengths: {dust_par.wave}\n")
 
 
 VERSION = "June 2024"
@@ -272,7 +274,7 @@ def scattered_light(data):
     sorted_stars_i = sorted_stars.iloc[i].values
     # dust_arr2 = dust_arr
     
-    while nphoton < dust_par.num_photon:
+    while nphoton < dust_par.num_photon/nprocess:
         # start_loop_time = time.time()
         # if fix_rnd == 1:
             # print("***********Warning: Fixed Random Numbers*************")
@@ -282,7 +284,7 @@ def scattered_light(data):
         if (nphoton % 100000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
             print(f"wavelength: {w}, nphoton: {nphoton}, time for loop: {timez - time1},")
-            if (nphoton % 10000000 == 0):
+            if (nphoton % 10000000 == 0) and nprocess ==1:
                 CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)
                 # plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
             #, starlog, misslog, totlog, distlog, scatlog)
@@ -393,8 +395,13 @@ def scattered_light(data):
                 intens = 0
     time2 = time.time()
     print("Time taken for this wavelength_process:", time2 - time1)
-    CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)#, starlog, misslog, totlog, distlog, scatlog)
-    plot_diffused_bg(dust_arr*tot_star/nphoton, w, dust_par.num_photon, a , g )
+
+    if nprocess ==1:
+        CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)#, starlog, misslog, totlog, distlog, scatlog)
+        plot_diffused_bg(dust_arr*tot_star/nphoton, w, dust_par.num_photon)
+
+    return dust_arr*tot_star/nphoton
+
     # plot_diffused_bg(dust_arr2*tot_star / nphoton, 110500)
     # print(dust_arr)
 
@@ -414,34 +421,54 @@ def scattered_light(data):
     # totlog = None 
     # phot_log_file.close()
 
-    # return dust_arr * tot_star / dust_par.num_photon
-
-
 
 # main
 if __name__ == '__main__':
+
+
     scatter_wavelengths = []
     for w in dust_par.wave:
-        i = wavelengths_list.index(w)
-        j = dust_par.wave.index(w)
-        scatter_wavelengths.append([i,j,w])
-
-    # NProcessor = 2
-    # start_time = time.time()
+        try:
+            i = wavelengths_list.index(w)
+            j = dust_par.wave.index(w)
+            scatter_wavelengths.append([i,j,w])
+        except ValueError:
+            print (f"wavelength: {w} not in the list of valid wavelengths!!|n")
 
     NProcessor = 10
     start_time = time.time()
+    
 
     if NProcessor > len(dust_par.wave):
         NProcessor = len(dust_par.wave)
 
     print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
+    if len(scatter_wavelengths) ==1:
+        nprocess = NProcessor
+        scatter_wavelengths = scatter_wavelengths * NProcessor
+        print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}\n")
+        with mp.Pool(processes = NProcessor) as pool:
+            dust_arrays = pool.map(scattered_light, (scatter_wavelengths))
 
-    with mp.Pool(processes = NProcessor) as pool:
-        print("working!!!!!!")
-    # Use the pool to apply the function to each pair in the input list
-        pool.map(scattered_light, scatter_wavelengths )
-        print("working2!!!!!!")
+        dust_arr_final = np.zeros(( 1800, 3600))
+        for d in dust_arrays:
+            dust_arr_final += d
+
+        print(dust_arr_final)
+        CHECKPOINT(dust_arr_final, dust_par, dust_par.num_photon, False, wcs_param, hipstars, w)#, starlog, misslog, totlog, distlog, scatlog)
+        plot_diffused_bg(dust_arr_final, w, dust_par.num_photon)
+
+    else:
+        if len(scatter_wavelengths) < NProcessor:
+            NProcessor = len(scatter_wavelengths)
+
+        print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}\n")
+        nprocess = 1
+        with mp.Pool(processes = NProcessor) as pool:
+            print("working!!!!!!")
+        # Use the pool to apply the function to each pair in the input list
+            _ = pool.map(scattered_light, (scatter_wavelengths))
+            print("working2!!!!!!")
 
     print(f"time taken: {time.time() - start_time}")
 
