@@ -284,7 +284,11 @@ def scattered_light(data):
         if (nphoton % 100000 == 0) and nphoton!= 0: # and (nphoton > 0):
             timez = time.time()
             print(f"wavelength: {w}, nphoton: {nphoton}, time for loop: {timez - time1},")
+<<<<<<< Updated upstream
             if (nphoton % 10000000 == 0) and nprocess ==1:
+=======
+            if (nphoton % 1000000 == 0):
+>>>>>>> Stashed changes
                 CHECKPOINT(dust_arr, dust_par, nphoton, tot_star, wcs_param, hipstars, w)
                 # plot_diffused_bg(dust_arr * tot_star / nphoton, w, dust_par.num_photon)
             #, starlog, misslog, totlog, distlog, scatlog)
@@ -443,6 +447,7 @@ if __name__ == '__main__':
         NProcessor = len(dust_par.wave)
 
     print(f"Input:{scatter_wavelengths}, Nprocessor:{NProcessor}")
+<<<<<<< Updated upstream
     if len(scatter_wavelengths) ==1:
         nprocess = NProcessor
         scatter_wavelengths = scatter_wavelengths * NProcessor
@@ -469,6 +474,14 @@ if __name__ == '__main__':
         # Use the pool to apply the function to each pair in the input list
             _ = pool.map(scattered_light, (scatter_wavelengths))
             print("working2!!!!!!")
+=======
+    scattered_light(scatter_wavelengths[0])
+    # with mp.Pool(processes = NProcessor) as pool:
+    #     print("working!!!!!!")
+    # # Use the pool to apply the function to each pair in the input list
+    #     pool.map(scattered_light, scatter_wavelengths )
+    #     print("working2!!!!!!")
+>>>>>>> Stashed changes
 
     print(f"time taken: {time.time() - start_time}")
 

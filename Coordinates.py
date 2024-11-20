@@ -12,6 +12,12 @@ from Params_configparser import get_folder_loc
 
 folder_loc, _ = get_folder_loc()
 
+def convert_to_hms(value):
+    """Converts a decimal hour or degree value to hours, minutes, seconds."""
+    hours = int(value)
+    minutes = int((value - hours) * 60)
+    seconds = (value - hours - minutes/60) * 3600
+    return hours, abs(minutes), abs(seconds)
 
 def conv_cart_to_eq(xp, yp, zp, dust_par):
     x = (xp - dust_par.sun_x) * dust_par.dust_binsize
@@ -78,6 +84,12 @@ def conv_gal_to_eq(gl, gb):
 
     # Calculate Cartesian coordinates in Galactic system
     xyz_galactic = np.array([np.cos(l) * np.cos(b), np.sin(l) * np.cos(b), np.sin(b)])
+
+    A = np.array([
+        [-0.0548755604, -0.8734370902, -0.4838350155],
+        [0.4941094279, -0.4448296300, 0.7469822445],
+        [-0.8676661490, -0.1980763734, 0.4559837762]
+    ])
 
     # Apply the inverse of the transformation matrix to get Equatorial coordinates
     A_inv = np.linalg.inv(A)

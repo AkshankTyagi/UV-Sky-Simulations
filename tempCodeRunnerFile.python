@@ -1,0 +1,274 @@
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# # Data for a 3D scatter plot
+# x_data = [1, 2, 3]
+# y_data = [2, 3, 4]
+# z_data = [5, 6, 7]
+
+# # Start point of the vector (arrow)
+# start_x = 1
+# start_y = 2
+# start_z = 3
+
+# # Direction of the vector
+# direction_u = 2  # x direction component
+# direction_v = 1  # y direction component
+# direction_w = 3  # z direction component
+
+# # Create 3D scatter plot
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+
+# # Scatter plot
+# ax.scatter(x_data, y_data, z_data, color='blue')
+
+# # Plot the vector (arrow) using quiver
+# ax.quiver(start_x, start_y, start_z, direction_u, direction_v, direction_w, length=1, color='red', arrow_length_ratio=0.2)
+
+# # Set labels for the axes
+# ax.set_xlabel('X')
+# ax.set_ylabel('Y')
+# ax.set_zlabel('Z')
+
+# Show the plot
+# plt.show()
+
+# import matplotlib.pyplot as plt
+# import numpy as np
+
+# ax = plt.figure().add_subplot(projection='3d')
+
+# # Make the grid
+# x, y, z = np.meshgrid(np.arange(-2, 1, 0.2),
+#                       np.arange(0, 1, 0.2),
+#                       np.arange(-0.8, 1, 0.8))
+
+# # Make the direction data for the arrows
+# u = np.sin(2*np.pi * x) * np.cos(np.pi * y) * np.cos(np.pi * z)
+# v = -np.cos(3*np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z)
+# w = (np.sqrt(2.0 / 3.0) * np.cos(np.pi * x) * np.cos(np.pi * y) *
+#      np.sin(np.pi * z))
+
+# ax.quiver(x, y, z, u, v, w, length=0.16, normalize=True, arrow_length_ratio=0.4)
+
+# plt.show()
+
+
+# import numpy as np
+# import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
+
+# # Define the radius of the galactic plane circle
+# radius = 10
+
+# # Generate points for the circle
+# theta = np.linspace(0, 2 * np.pi, 100)
+# x_circle = radius * np.cos(theta)
+# y_circle = radius * np.sin(theta)
+# z_circle = np.zeros_like(theta)
+
+# # Create a 3D plot
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
+
+# # Plot the circle on the XY plane
+# ax.plot(x_circle, y_circle, z_circle, color='green', label='Galactic Plane (XY)')
+
+# # Plot the circle on the XZ plane
+# ax.plot(x_circle, z_circle, y_circle, color='blue', label='Galactic Plane (XZ)')
+
+# # Plot the circle on the YZ plane
+# ax.plot(z_circle, x_circle, y_circle, color='red', label='Galactic Plane (YZ)')
+
+# # Set labels for the axes
+# ax.set_xlabel('X')
+# ax.set_ylabel('Y')
+# ax.set_zlabel('Z')
+
+# # Set the aspect ratio of the plot
+# ax.set_box_aspect([1, 1, 1])  # Aspect ratio is 1:1:1
+
+# # Set limits for the axes
+# ax.set_xlim(-radius, radius)
+# ax.set_ylim(-radius, radius)
+# ax.set_zlim(-radius, radius)
+
+# # Plot Earth at the origin
+# ax.scatter(0, 0, 0, color='black', s=100, label='Earth')
+
+# # Add a legend
+# ax.legend()
+
+# # Display the plot
+# plt.show()
+
+import matplotlib.pyplot as plt
+
+from mpl_toolkits.mplot3d import axes3d
+
+ax = plt.figure().add_subplot(projection='3d')
+X, Y, Z = axes3d.get_test_data(0.05)
+
+# Plot the 3D surface
+# ax.plot_surface(X, Y, Z, edgecolor='royalblue', lw=0.5, rstride=8, cstride=8,
+                # alpha=0.3)
+
+# Plot projections of the contours for each dimension.  By choosing offsets
+# that match the appropriate axes limits, the projected contours will sit on
+# the 'walls' of the graph.
+ax.contour(X, Y, Z, zdir='z', offset=-100, cmap='coolwarm')
+ax.contour(X, Y, Z, zdir='x', offset=-40, cmap='coolwarm')
+ax.contour(X, Y, Z, zdir='y', offset=40, cmap='coolwarm')
+
+ax.set(xlim=(-40, 40), ylim=(-40, 40), zlim=(-100, 100),
+       xlabel='X', ylabel='Y', zlabel='Z')
+
+plt.show()
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Define the direction cosines (a, b, c) and distance d of the plane
+a, b, c = 0.707, 0.5, 0.5  # Example direction cosines
+d = 0  # Distance from the origin
+
+# Create the 3D plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Define the bounds of the plot
+xlim = ylim = zlim = (-10, 10)
+ax.set_xlim(xlim)
+ax.set_ylim(ylim)
+ax.set_zlim(zlim)
+
+
+# Calculate intercepts on the XY plane (z=0)
+if c != 0:
+    X = np.array(xlim)
+    Y = (d - a*X - 10*c) / b
+    Z = np.ones_like(X)*10
+    ax.plot(X, Y, Z, color='red')
+
+# Calculate intercepts on the XZ plane (y=0)
+if b != 0:
+    Z = np.array(xlim)
+    X = (d - c*Z  - 10*b) / a
+    Y = np.ones_like(X)*10
+    ax.plot(X, Y, Z, color='green')
+
+# Calculate intercepts on the YZ plane (x=0)
+if a != 0:
+    Y = np.array(ylim)
+    Z = (d - b*Y - 10*a) / c
+    X = np.ones_like(Y)*10
+    ax.plot(X, Y, Z, color='blue')
+# Calculate intercepts on the XY plane (z=0)
+if c != 0:
+    X = np.array(xlim)
+    Y = (d - a*X + 10*c) / b
+    Z = np.ones_like(X)*-10
+    ax.plot(X, Y, Z, color='red')
+
+# Calculate intercepts on the XZ plane (y=0)
+if b != 0:
+    X = np.array(xlim)
+    Z = (d -a*X  + 10*b) / c
+    Y = np.ones_like(X)*-10
+    ax.plot(X, Y, Z, color='green')
+
+# Calculate intercepts on the YZ plane (x=0)
+if a != 0:
+    Y = np.array(ylim)
+    Z = (d - b*Y + 10*a) / c
+    X = np.ones_like(Y)*-10
+    ax.plot(X, Y, Z, color='blue')
+
+# Set labels and title
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('Intercepts of the Plane on 3D Plot Faces')
+
+# Show the plot
+plt.show()
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Define the direction cosines (a, b, c) and distance d of the plane
+a, b, c = 0.1, 0.5, 0.87  # Example direction cosines
+d = 5  # Distance from the origin
+
+# Create the 3D plot
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Define the bounds of the plot
+xlim = (-10, 10)
+ylim = (-10, 10)
+zlim = (-10, 10)
+ax.set_xlim(xlim)
+ax.set_ylim(ylim)
+ax.set_zlim(zlim)
+
+# Function to plot line segments in 3D space
+def plot_line(ax, p1, p2, color='black'):
+    """Plot a line segment between two points in 3D space."""
+    x_vals = [p1[0], p2[0]]
+    y_vals = [p1[1], p2[1]]
+    z_vals = [p1[2], p2[2]]
+    ax.plot(x_vals, y_vals, z_vals, color=color)
+
+# Calculate intercepts on the XY plane (z=0)
+if c != 0:
+    X = np.linspace(xlim[0], xlim[1], 100)
+    Y = np.linspace(ylim[0], ylim[1], 100)
+    Z = np.zeros_like(X)
+    Z = (d - a * X) / c
+    plot_line(ax, [xlim[0], ylim[0], 0], [xlim[1], ylim[1], Z[-1]], color='red')
+
+# Calculate intercepts on the XZ plane (y=0)
+if b != 0:
+    Y = np.zeros_like(np.linspace(xlim[0], xlim[1], 100))
+    X = np.linspace(xlim[0], xlim[1], 100)
+    Z = (d - a * X) / c
+    plot_line(ax, [xlim[0], 0, Z[0]], [xlim[1], 0, Z[-1]], color='green')
+
+# Calculate intercepts on the YZ plane (x=0)
+if a != 0:
+    X = np.zeros_like(np.linspace(ylim[0], ylim[1], 100))
+    Y = np.linspace(ylim[0], ylim[1], 100)
+    Z = (d - b * Y) / c
+    plot_line(ax, [0, ylim[0], Z[0]], [0, ylim[1], Z[-1]], color='blue')
+
+# Plot projections of the plane
+# XY plane projection (z = 0)
+x = np.linspace(xlim[0], xlim[1], 100)
+y = np.linspace(ylim[0], ylim[1], 100)
+X, Y = np.meshgrid(x, y)
+Z = (d - a * X - b * Y) / c
+ax.contour(X, Y, Z, zdir='z', offset=0, cmap='coolwarm', alpha=0.5)
+
+# XZ plane projection (y = 0)
+y = np.zeros_like(x)
+Z = (d - a * X) / c
+ax.contour(X, y, Z, zdir='y', offset=0, cmap='coolwarm', alpha=0.5)
+
+# YZ plane projection (x = 0)
+x = np.zeros_like(y)
+Z = (d - b * Y) / c
+ax.contour(x, Y, Z, zdir='x', offset=0, cmap='coolwarm', alpha=0.5)
+
+# Set labels and title
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('Plane Intercepts and Projections in 3D Plot')
+
+plt.show()
+
+

@@ -1,0 +1,7 @@
+CHANGELOG for CADS/UVS Stellar Spectrum software
+(http://cads.iiap.res.in/software)
+------------------------------------------------------------------------
+
+NOTE: This file records the changes made after the release of the stable
+version UVS_stellar_spectrum-1.0
+------------------------------------------------------------------------

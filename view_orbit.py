@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from sgp4.io import twoline2rv
 from sgp4.earth_gravity import wgs72
+from skyfield.api import load, Topos
+from skyfield.almanac import find_discrete, risings_and_settings
 
 from configparser import ConfigParser
 config = ConfigParser()
@@ -57,6 +59,34 @@ def read_satellite_TLE(filename= sat_file, sat_name = 'ISS'):
     line2 = config.get(sat_name, 'line2')
 
     return line1, line2
+
+# get celestial coordinates of Sun, Moon
+def get_celestial_positions(time_arr):
+    # Load ephemeris data
+    
+    eph = load('de421.bsp')
+    earth, sun, moon = eph['earth'], eph['sun'], eph['moon']
+
+    solar = []
+    lunar = []
+    for time in time_arr:
+        # Calculate the position of the Sun relative to Earth at the given time
+        astrometric_sun = earth.at(time).observe(sun)
+        apparent_sun = astrometric_sun.apparent()
+        ra_sun, dec_sun, _ = apparent_sun.radec()
+
+        # Calculate the position of the Moon relative to Earth at the given time
+        astrometric_moon = earth.at(time).observe(moon)
+        apparent_moon = astrometric_moon.apparent()
+        ra_moon, dec_moon, _ = apparent_moon.radec()
+
+        solar.append((ra_sun.hours- 1/60, dec_sun.degrees +4/60))
+        lunar.append((ra_moon.hours -8/60, dec_moon.degrees))
+
+    return {
+        "sun": solar,
+        "moon": lunar
+    }
 
 # get satellite object from TLE (2 lines data)
 def get_satellite(line1, line2):
@@ -107,13 +137,26 @@ def propagate(sat, time_start, time_end, dt):
     position = []; velocity = []
     right_ascension = []; declination = []
     for j in time_arr.tolist():
+        print(j)
         p, v = sat.propagate(j.year, j.month, j.day, j.hour, j.minute, j.second)
         # print(p,v)
         ra, dec = get_ra_dec_from_sv(p, v)
         # list packing
         position.append(p); velocity.append(v)
         right_ascension.append(ra); declination.append(dec)
-        
+
+
+    time_arr2 = []
+    ts = load.timescale()
+    for time in time_arr:
+        start_time =  time.astype('M8[ms]').astype(datetime.datetime)
+        time_arr2.append(ts.utc(start_time.year, start_time.month, start_time.day, start_time.hour, start_time.minute, start_time.second))
+
+    
+
+    print(time_arr2)
+    sol_positions = get_celestial_positions(time_arr2)
+    print( sol_positions)
 
     # slice into columns
     pos, vel   = list(zip(*position)), list(zip(*velocity))
@@ -181,6 +224,7 @@ def main():
 
     # simulation starts from current time to one full orbit
     start = np.datetime64(datetime.datetime.now())
+    
     # times, state_vectors, celestial_coordinates  
     time_arr, state_vectors, celestial_coordinates = get_simulation_data(satellite, df, start, t_period, t_slice, roll)
     Spectra = GET_SPECTRA(castelli_dir, celestial_coordinates)

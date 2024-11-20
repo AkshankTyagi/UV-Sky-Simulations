@@ -75,7 +75,6 @@ def filter_by_fov(mdf, ra, de):
     # return filtered data
     return mdf, frame_boundaries
 
-
 # get valid frame boundaries
 def get_frame_boundaries(w, h, x, y):
     # set x boundaries
